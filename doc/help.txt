@@ -1,0 +1,104 @@
+Vita: A command-line job application management system.
+
+Usage:
+  vita <command> [subcommand] [options]
+
+Commands:
+  help          Display help information for commands and subcommands.
+  job           Manage job applications.
+  cv            Manage resumes (including the master CV) and filtered YAML resumes.
+  render        Render a YAML resume to PDF.
+  template      Manage resume templates.
+  doc           Manage supporting documents.
+  config        Manage global settings and preferences.
+  stats         Display statistics about job applications, resumes, and templates.
+
+Subcommands and Options:
+
+  1. help
+     Display help information.
+     Usage:
+       vita help [command]
+
+  2. job
+     Manage job applications.
+     Usage:
+       vita job list [--filter <status, date, company>]
+       vita job create --title <title> --company <company> [--resume <uuid>] [--notes <text>]
+       vita job update <id> [--title <title>] [--company <company>] [--status <status>] [--notes <text>]
+       vita job delete <id>
+       vita job show <id>
+     Options:
+       --filter       Filter applications by status, date, or company.
+       --resume       Attach a resume by UUID.
+       --status       Update job application status (e.g., applied, interviewing).
+       --notes        Add custom notes to an application.
+
+  3. cv
+     Manage resumes, including the master CV and job-specific resumes.
+     Usage:
+       vita cv list [--filter <tags, date>]
+       vita cv create --from [master | template <template-label> | duplicate <uuid>] --name <name>
+       vita cv update <uuid|master> [--add-entry <text>] [--remove-entry <key>] [--edit]
+       vita cv delete <uuid>
+       vita cv show <uuid|master>
+       vita cv query <yq-query>
+       vita cv add --type <type> --content <content>
+       vita cv edit
+     Options:
+       --from         Specify the source: master CV, a template, or duplicate.
+       --edit         Open the resume or master CV in the default editor.
+       --add-entry    Add an entry inline to the master CV or a resume.
+       --remove-entry Remove a specific entry from the master CV or a resume.
+
+  4. render
+     Render a YAML resume to a PDF.
+     Usage:
+       vita render <resume-uuid> [--template <template-label>] [--output <file-path>]
+       vita link <job-id> <resume-uuid>
+     Options:
+       --template     Specify the template for rendering.
+       --output       Specify the output file path.
+
+  5. template
+     Manage resume templates.
+     Usage:
+       vita template list
+       vita template create --label <label> --from [base | existing <template-label>]
+       vita template update <label> [--edit]
+       vita template delete <label>
+       vita template show <label>
+     Options:
+       --from         Create a template from base or an existing one.
+       --edit         Open the template YAML file in the default editor.
+
+  6. doc
+     Manage supporting documents.
+     Usage:
+       vita doc list [--filter <tags, type>]
+       vita doc add --file <path> --type <type> [--tags <tags>]
+       vita doc delete <id>
+       vita doc show <id>
+       vita doc link <job-id> <doc-id>
+     Options:
+       --type         Specify document type (e.g., cover letter, certificate).
+       --tags         Add tags for better organization.
+
+  7. config
+     Manage global preferences.
+     Usage:
+       vita config [--set <key=value>] [--show]
+     Options:
+       --set          Set a global configuration key.
+       --show         Display current configuration.
+
+  8. stats
+     Display statistics about Vita usage.
+     Usage:
+       vita stats
+
+Examples:
+  vita job create --title "Software Engineer" --company "TechCorp"
+  vita cv create --from template modern --name "Tech Resume"
+  vita render resume.yaml --template modern --output output/resume.pdf
+  vita cv query '.education[] | select(.year >= 2020)'

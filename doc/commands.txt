@@ -1,0 +1,36 @@
+vita help
+vita help <command>
+
+vita job list [--filter <status, date, company>]
+vita job create --title <title> --company <company> [--resume <uuid>] [--notes <text>]
+vita job update <id> [--title <title>] [--company <company>] [--status <status>] [--notes <text>]
+vita job delete <id>
+vita job show <id>
+
+vita cv list [--filter <tags, date>]
+vita cv create --from [master | template <template-label> | duplicate <uuid>] --name <name>
+vita cv update <uuid|master> [--add-entry <text>] [--remove-entry <key>] [--edit]
+vita cv delete <uuid>
+vita cv show <uuid|master>
+vita cv query <yq-query>
+vita cv add --type <type> --content <content>
+vita cv edit
+
+vita render <resume-uuid> [--template <template-label>] [--output <file-path>]
+vita link <job-id> <resume-uuid>
+
+vita template list
+vita template create --label <label> --from [base | existing <template-label>]
+vita template update <label> [--edit]
+vita template delete <label>
+vita template show <label>
+
+vita doc list [--filter <tags, type>]
+vita doc add --file <path> --type <type> [--tags <tags>]
+vita doc delete <id>
+vita doc show <id>
+vita doc link <job-id> <doc-id>
+
+vita config [--set <key=value>] [--show]
+
+vita stats
