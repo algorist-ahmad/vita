@@ -102,3 +102,7 @@ Examples:
   vita cv create --from template modern --name "Tech Resume"
   vita render resume.yaml --template modern --output output/resume.pdf
   vita cv query '.education[] | select(.year >= 2020)'
+
+ENVIRONMENT
+  config file can be defined with $VITARC, else it is ~/.vitarc by default.
+  data dir can be defined with $VITADATA, else it is ~/.vita by default.
