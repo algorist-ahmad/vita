@@ -37,7 +37,7 @@ declare -A ARG=(
         [doc]='null'          # list, add, del, show
         [render]='null'       # <resume-uuid> [--template <template-label>] [--output <file-path>]
         [link]='null'         # <job-id> <resume-uuid>
-        [unknown]=''          # unknown args
+        [unknown]='null'      # unknown args
     )
 
 #########################################################
@@ -82,11 +82,11 @@ parse() {
                 ARG[job]='' ;
                 last_option='job' ;
                 ;;
-            cv | -c)
+            cv | resume | -c)
                 ARG[cv]="" ;
                 last_option='cv' ;
                 ;;
-            template | -t)
+            template* | tmpl | -t)
                 ARG[template]='' ;
                 last_option='template' ;
                 ;;
@@ -94,7 +94,8 @@ parse() {
                 ARG[doc]='' ;
                 last_option='doc' ;
                 ;;
-            render | -r)
+            --render)
+                # [[ "$last_option" == 'cv' ]]
                 ARG[render]='' ;
                 last_option='render' ;
                 ;;
@@ -109,6 +110,9 @@ parse() {
                 last_option='unknown' ; # resets last option
                 ;;
             *)
+                # if last option is unknown clear ARG[unknown]
+                [[ "$last_option" == 'unknown' ]] && is_null "${ARG[unknown]}" && ARG[unknown]=''
+                # last option specified captures the argument
                 ARG[$last_option]="${ARG[$last_option]} $1" ;
                 ;;
 
@@ -136,13 +140,13 @@ dispatch() {
     fi
 
     is_true ${ARG[help]} && print_help
+    is_true "${ARG[stat]}" && echo "stat: nothing happened"
     ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
     ! is_null "${ARG[job]}" && source $job ${ARG[job]}
     ! is_null "${ARG[template]}" && source $template ${ARG[template]}
-    ! is_null "${ARG[doc]}"
-    ! is_null "${ARG[config]}"
-    ! is_null "${ARG[render]}"
-    ! is_null "${ARG[stat]}" 
+    ! is_null "${ARG[doc]}" && echo "doc: nothing happened"
+    ! is_null "${ARG[config]}" && echo "config file: ${ENV[config]}"
+    ! is_null "${ARG[render]}" && echo "render: nothing happened"
     
     # ...else
     #     echo "Error: No valid operation specified." >&2
@@ -156,7 +160,7 @@ terminate() {
     unknown_args="${ARG[unknown]}"
 
     # warn of unknown arguments
-    [[ -n "$unknown_args" ]] && final_message+="Unknown arguments: $unknown_args\n"
+    ! is_null "$unknown_args" && final_message+="Unknown arguments: $unknown_args\n"
 
     # if debug is true, reveal variables
     is_true ${ARG[debug]} && reveal_variables
@@ -187,11 +191,11 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ -z $value ]]; then
-            value="no args"
+        if [[ $value == 'null' ]]; then
+            value=""  # Null value
+        elif [[ -z $value ]]; then
+            value="EMPTY"  # Empty string
             color=$cyan    # Empty value
-        elif [[ $value == 'null' ]]; then
-            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
             color=$green   # True value
         elif [[ $value == '0' ]]; then
@@ -208,11 +212,11 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ -z $value ]]; then
-            value="empty"
+        if [[ $value == 'null' ]]; then
+            value=""  # Null value
+        elif [[ -z $value ]]; then
+            value="EMPTY"  # Empty string
             color=$cyan    # Empty value
-        elif [[ $value == 'null' ]]; then
-            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
             color=$green   # True value
         elif [[ $value == '0' ]]; then
@@ -229,11 +233,11 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ -z $value ]]; then
-            value="empty"
+        if [[ $value == 'null' ]]; then
+            value=""  # Null value
+        elif [[ -z $value ]]; then
+            value="EMPTY"  # Empty string
             color=$cyan    # Empty value
-        elif [[ $value == 'null' ]]; then
-            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
             color=$green   # True value
         elif [[ $value == '0' ]]; then

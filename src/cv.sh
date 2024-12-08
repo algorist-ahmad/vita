@@ -1,7 +1,6 @@
 #!/bin/bash
 
 declare -A CV_ARG=(
-    [input]="$@"
     [list]=0
     [add]='null'
     [del]='null'
@@ -11,7 +10,7 @@ declare -A CV_ARG=(
     [query]='null'
     [render]='null'       # <resume-uuid> [--template <template-label>] [--output <file-path>]
     [link]='null'         # <job-id> <resume-uuid>
-    [unknown]=''          # unknown args
+    [unknown]='null'      # unknown args
 )
 
 cv_main() {
@@ -23,12 +22,12 @@ cv_main() {
 }
 
 cv_initialize() {
-    [[ -z "${CV_ARG[input]}" ]] && CV_ARG[list]=1
+    [[ -z "${ARG[cv]}" ]] && CV_ARG[list]=1
 }
 
 cv_parse() {
 
-    local last_option='unknown'
+    local last_option='unknown' # lastop
     
     # Iterate over arguments using a while loop
     while [[ $# -gt 0 ]]; do
@@ -62,7 +61,7 @@ cv_parse() {
                 CV_ARG[query]='' ;
                 last_option='query' ;
                 ;;
-            render | to-pdf | -r)
+            render | to-pdf | convert | -r)
                 CV_ARG[render]='' ;
                 last_option='render' ;
                 ;;
@@ -74,9 +73,12 @@ cv_parse() {
                 ENV[message]+='null has special meaning, rejected\n' ;
                 ;;
             --)
-                last_option='unknown' ; # resets last option
+                last_option='unknown' ; # resets last option, why tho idk
                 ;;
             *)
+                # if last option is unknown clear ARG[unknown] (remove the special string which identifies it as null)
+                [[ "$last_option" == 'unknown' ]] && is_null "${CV_ARG[unknown]}" && CV_ARG[unknown]=''
+                # last option specified captures the argument
                 CV_ARG[$last_option]="${CV_ARG[$last_option]} $1" ;
                 ;;
 
@@ -89,7 +91,11 @@ cv_validate() {
 }
 
 cv_dispatch() {
-    is_true ${CV_ARG[list]} && list-cv
+    list=${CV_ARG[list]}
+    render_id=${CV_ARG[render]}
+    
+    is_true $list && list_resumes
+    ! is_null "$render_id" && render_resume $render_id
 }
 
 cv_terminate() {
@@ -109,9 +115,15 @@ join_arrays() {
     done
 }
 
-list-cv() {
+list_resumes() {
     cd "${ENV[data]}"
     tree cv -L 1
+}
+
+render_resume() {
+    echo "rendering $1"
+    #     pdflatex -output(?) OUTPUTDIR -draft(?) FILE > /dev/null
+    # pdflatex -output(?) OUTPUTDIR FILE > /dev/null
 }
 
 cv_main "$@"
