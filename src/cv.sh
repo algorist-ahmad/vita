@@ -110,10 +110,8 @@ join_arrays() {
 }
 
 list-cv() {
-    dir="${ENV[data]}/cv"
-    cmd='eza --header --all --long --icons --no-permissions --no-user --git --git-repos --total-size --time-style=relative --sort Name'
-    
-    $cmd $dir
+    cd "${ENV[data]}"
+    tree cv -L 1
 }
 
 cv_main "$@"
