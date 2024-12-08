@@ -17,9 +17,9 @@ declare -A FILE=(
 
 declare -A ERROR=(
     [0]='OK'
-    [150]='ERROR 1: desc'
-    [151]='ERROR 2: desc'
-    [152]='ERROR 3: desc'
+    [150]='ERROR 150: no resume identifier'
+    [151]='ERROR 151: no such resume'
+    [152]='ERROR 152: no cv.tex file'
     [153]='ERROR 4: desc'
     [154]='ERROR 5: desc'
     [155]='ERROR 6: desc'
@@ -158,6 +158,8 @@ terminate() {
 
     final_message="${ENV[message]}"
     unknown_args="${ARG[unknown]}"
+    error_number=${ENV[error]}
+    error_msg="${ERROR[$error_number]}"
 
     # warn of unknown arguments
     ! is_null "$unknown_args" && final_message+="Unknown arguments: $unknown_args\n"
@@ -165,10 +167,13 @@ terminate() {
     # if debug is true, reveal variables
     is_true ${ARG[debug]} && reveal_variables
 
+    # if there are any errors, print
+    [[ $error_number -gt 0 ]] && echo -e "$error_msg"
+
     # if there are any final messages, print
     [[ -n "$final_message" ]] && echo -e "\n$final_message"
 
-    exit ${ENV[error]}
+    exit $error_number
 }
 
 print_help() {

@@ -93,7 +93,7 @@ cv_validate() {
 cv_dispatch() {
     list=${CV_ARG[list]}
     render_id=${CV_ARG[render]}
-    
+
     is_true $list && list_resumes
     ! is_null "$render_id" && render_resume $render_id
 }
@@ -120,10 +120,38 @@ list_resumes() {
     tree cv -L 1
 }
 
+# renders a .tex file
 render_resume() {
-    echo "rendering $1"
-    #     pdflatex -output(?) OUTPUTDIR -draft(?) FILE > /dev/null
-    # pdflatex -output(?) OUTPUTDIR FILE > /dev/null
+    # begin init
+        root="${ENV[root]}"
+        id=$1
+        dir="${ENV[data]}/cv" # relevant directory
+        file="$dir/$id/cv.tex"
+        rendered_file="$dir/$id/cv.pdf"
+        loading_animation="${ENV[root]}/src/cool_loading_effect.sh"
+    # end init
+
+    # begin validation
+        # id provided?
+        [[ -z "$id" ]] && ENV[error]=150 && return 150
+        # folder exists?
+        [[ ! -d "$dir/$id" ]] && ENV[error]=151 && return 151
+        # .tex file present?
+        [[ ! -f "$file" ]] && ENV[error]=152 && return 152
+        # .tex file valid?
+        # im not doin that
+    # end validation
+
+    echo "Rendering..."
+    $root/src/cool_loading_effect.sh
+
+    # generate an aux file first to get an accurate count of total pages
+    pdflatex -output-directory "$dir/$id" -draftmode "$file" > /dev/null
+    # generate a pdf using the aux file generated earlier
+    pdflatex -output-directory "$dir/$id" "$file" > /dev/null
+
+    echo -e "PDF ready at $rendered_file"
+    xdg-open "$rendered_file" 2>/dev/null
 }
 
 cv_main "$@"
