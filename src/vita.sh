@@ -139,6 +139,10 @@ dispatch() {
     ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
     ! is_null "${ARG[job]}" && source $job ${ARG[job]}
     ! is_null "${ARG[template]}" && source $template ${ARG[template]}
+    ! is_null "${ARG[doc]}"
+    ! is_null "${ARG[config]}"
+    ! is_null "${ARG[render]}"
+    ! is_null "${ARG[stat]}" 
     
     # ...else
     #     echo "Error: No valid operation specified." >&2
@@ -147,8 +151,12 @@ dispatch() {
 }
 
 terminate() {
-    code=$?
+
     final_message="${ENV[message]}"
+    unknown_args="${ARG[unknown]}"
+
+    # warn of unknown arguments
+    [[ -n "$unknown_args" ]] && final_message+="Unknown arguments: $unknown_args\n"
 
     # if debug is true, reveal variables
     is_true ${ARG[debug]} && reveal_variables
@@ -156,7 +164,7 @@ terminate() {
     # if there are any final messages, print
     [[ -n "$final_message" ]] && echo -e "\n$final_message"
 
-    exit $code
+    exit ${ENV[error]}
 }
 
 print_help() {
@@ -254,7 +262,21 @@ create_data_directory() {
 
 handle_argless_run() {
     # if no arg provided, get help
-    [[ -z "${ARG[input]}" ]] && ENV[argless]=1 && ARG[help]=1
+    if [[ -z "${ARG[input]}" ]]; then
+        ENV[argless]=1
+        #ARG[help]=1
+        echo -e "
+    Commands:
+        help          Display help information for commands and subcommands.
+        job           Manage job applications.
+        cv            Manage resumes (including the master CV) and filtered YAML resumes.
+        render        Render a YAML resume to PDF.
+        template      Manage resume templates.
+        doc           Manage supporting documents.
+        config        Manage global settings and preferences.
+        stats         Display statistics about job applications, resumes, and templates.
+        "
+    fi
 }
 
 # helpers
