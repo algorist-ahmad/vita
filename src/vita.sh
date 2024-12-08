@@ -2,9 +2,12 @@
 
 declare -A ENV=(
     [root]=$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")") # path to project root
+    [config]="${VITARC:-$HOME/.vitarc}"                                 # 
+    [data]="${VITADATA:-$HOME/.vita}"
+    [message]='' # post-execution messages and warnings go here
     [pwd]=$(pwd)
     [error]=0
-    [noarg]=0
+    [argless]=0
 )
 
 declare -A FILE=(
@@ -41,7 +44,7 @@ declare -A ARG=(
 
 main() {
     initialize   # setup environment and check for missing files
-    dissect "$@" # break input for analysis
+    parse "$@"   # break input for analysis
     validate     # validate the operation
     dispatch     # execute the operation
     terminate    # execute post-script tasks regardless of operation
@@ -49,11 +52,12 @@ main() {
 
 # prepare program for execution
 initialize() {
-    # if no arg provided, get help
-    [[ -z "${ARG[input]}" ]] && ENV[noarg]=1 && ARG[help]=1
+    create_config_file
+    create_data_directory
+    handle_argless_run
 }
 
-dissect() {
+parse() {
 
     local last_option='unknown'
     
@@ -79,7 +83,7 @@ dissect() {
                 last_option='job' ;
                 ;;
             cv | -c)
-                ARG[cv]='' ;
+                ARG[cv]="" ;
                 last_option='cv' ;
                 ;;
             template | -t)
@@ -98,6 +102,9 @@ dissect() {
                 ARG[link]='' ;
                 last_option='link' ;
                 ;;
+            null)
+                ENV[message]+='null has special meaning, rejected\n' ;
+                ;;
             --)
                 last_option='unknown' ; # resets last option
                 ;;
@@ -109,27 +116,29 @@ dissect() {
     done
 }
 
+# makes sure no contradicting operation is ordered
 validate() {
     :
-    # check_for_error1
-    # check_for_error2
-    # ...
 }
 
 dispatch() {
 
     e="${ENV[error]}"
+    root="${ENV[root]}"
+    cv="$root/src/cv.sh"
+    job="$root/src/job.sh"
+    template="$root/src/template.sh"
     
+    # if an error is detected, output to stderr immediately
     if [[ $e -gt 0 ]]; then
         echo "Error: $(get_error_msg $e)" >&2
         exit $e
     fi
 
-    [[ ${ARG[help]} -eq 1 ]] && print_help
-    # [[ "${ARG[create]}" -eq 1 ]] && do_create
-    # [[ "${ARG[edit]}"   -eq 1 ]] && do_edit
-    # [[ "${ARG[delete]}" -eq 1 ]] && do_delete
-    # [[ "${ARG[dir]}"    -eq 1 ]] && print_dir
+    is_true ${ARG[help]} && print_help
+    ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
+    ! is_null "${ARG[job]}" && source $job ${ARG[job]}
+    ! is_null "${ARG[template]}" && source $template ${ARG[template]}
     
     # ...else
     #     echo "Error: No valid operation specified." >&2
@@ -139,8 +148,14 @@ dispatch() {
 
 terminate() {
     code=$?
+    final_message="${ENV[message]}"
+
     # if debug is true, reveal variables
-    [[ ${ARG[debug]} -eq 1 ]] && reveal_variables
+    is_true ${ARG[debug]} && reveal_variables
+
+    # if there are any final messages, print
+    [[ -n "$final_message" ]] && echo -e "\n$final_message"
+
     exit $code
 }
 
@@ -154,6 +169,7 @@ reveal_variables() {
     local green="\033[32m"
     local red="\033[31m"
     local purple="\033[35m"
+    local cyan="\033[36m"
     local reset="\033[0m"
 
     echo -e "--- ARGUMENTS ---"
@@ -163,12 +179,15 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ $value == 'null' ]]; then
-            color=$purple    # Null value
+        if [[ -z $value ]]; then
+            value="no args"
+            color=$cyan    # Empty value
+        elif [[ $value == 'null' ]]; then
+            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
-            color=$green     # True value
+            color=$green   # True value
         elif [[ $value == '0' ]]; then
-            color=$red       # False value
+            color=$red     # False value
         fi
 
         printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
@@ -181,12 +200,15 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ $value == 'null' ]]; then
-            color=$purple    # Null value
+        if [[ -z $value ]]; then
+            value="empty"
+            color=$cyan    # Empty value
+        elif [[ $value == 'null' ]]; then
+            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
-            color=$green     # True value
+            color=$green   # True value
         elif [[ $value == '0' ]]; then
-            color=$red       # False value
+            color=$red     # False value
         fi
 
         printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
@@ -199,23 +221,51 @@ reveal_variables() {
         value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
         color="$reset"
 
-        if [[ $value == 'null' ]]; then
-            color=$purple    # Null value
+        if [[ -z $value ]]; then
+            value="empty"
+            color=$cyan    # Empty value
+        elif [[ $value == 'null' ]]; then
+            color=$purple  # Null value
         elif [[ $value == '1' ]]; then
-            color=$green     # True value
+            color=$green   # True value
         elif [[ $value == '0' ]]; then
-            color=$red       # False value
+            color=$red     # False value
         fi
 
         printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
     done
 }
 
+create_config_file() {
+    file="${ENV[config]}"
+    if [[ ! -f $file ]]; then
+        echo '# created by vita' > $file
+        ENV[message]+="No config file found, created one at $file\n"
+    fi
+}
+
+create_data_directory() {
+    dir="${ENV[data]}"
+    if [[ ! -d $dir ]]; then
+        mkdir -p $dir
+        ENV[message]+="No data directory found, create one at $dir\n"
+    fi
+}
+
+handle_argless_run() {
+    # if no arg provided, get help
+    [[ -z "${ARG[input]}" ]] && ENV[argless]=1 && ARG[help]=1
+}
+
 # helpers
 
-get_env() { echo "${ENV[$1]}"; }
+set_env() { echo "${ENV[$1]}"; }
 get_file() { echo "${FILE[$1]}"; }
 get_error_msg() { echo "${ERROR[$1]}"; }
+is_null() { [[ "$1" ==  'null' ]] }
+is_true() { [[ "$1" -eq 1      ]] }
+# is_null() { [[ "$1" == 'null' ]] && return 0 || return 1 ; } # deprecated
+# is_true() { [[ "$1" -eq 1 ]] && return 0 || return  1 ; } # deprecated
 
 # helpers
 
