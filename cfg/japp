@@ -1,0 +1,206 @@
+#!/bin/bash
+
+# Use the command 'japp show' to see all defaults and overrides
+
+# task show KEY-VALUE PAIRS ************************************************************************
+
+editor=$EDITOR
+verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
+
+# CONTEXTS *****************************************************************************************
+
+    # The attributes mentioned below are added to task
+    # automatically when the task is created.
+
+    #       DOM         TAG        PRIORITY    SCHEDULED   DUE
+    # -----------------------------------------------------------------------------
+    #context.work.read=  +work
+    #context.work.write= +work
+    #context.home.read=  +home
+    #context.home.write= +home
+
+# URGENCY TUNING ***********************************************************************************
+
+    # special tags
+
+    # urgency.user.tag.auto.coefficient=1.5       # relating to my vehicles
+    # urgency.user.tag.coin.coefficient=1.0       # relating to my vehicles
+    # urgency.user.tag.rv.coefficient=4.0         # for appointments
+    # urgency.user.tag.sidequest.coefficient=-2.0 # sidequests should be at the bottom
+    # urgency.user.tag.vita.coefficient=0.5		# relating to my portfolio
+    # urgency.user.tag.work.coefficient=1.5       # small boost to work related tasks
+
+    # UDAs
+
+	  urgency.uda.priority.C.coefficient=9.0   # CRITICAL
+    urgency.uda.priority.H.coefficient=6.0   # HIGH
+    urgency.uda.priority.M.coefficient=3.9   # MEDIUM
+    urgency.uda.priority.L.coefficient=1.8   # LOW
+    urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
+
+    color.uda.priority.C=color255 on color9
+    color.uda.priority.H=color250
+    color.uda.priority.M=color245
+    color.uda.priority.L=color242
+    color.uda.priority.T=color240
+
+# USER DEFINED ATTRIBUTES **************************************************************************
+
+# employer **************************************
+uda.employer.label=Employer
+uda.employer.type=string
+urgency.uda.employer.coefficient=1.0
+color.uda.employer=color254
+
+# job_title **************************************
+uda.job_title.label=Job Title
+uda.job_title.type=string
+urgency.uda.job_title.coefficient=1.0
+color.uda.job_title=color253
+
+# application_date **************************************
+uda.application_date.label=Application Date
+uda.application_date.type=date
+urgency.uda.application_date.coefficient=-0.2
+color.uda.application_date=color252
+
+# status **************************************
+uda.appstat.label=Status
+uda.appstat.type=string
+uda.appstat.values=pending,interviewing,offered,rejected
+uda.appstat.default=Pending
+urgency.uda.appstat.coefficient=2.0
+color.uda.appstat=color251
+
+# resume **************************************
+uda.resume.label=Resume UUID
+uda.resume.type=string
+urgency.uda.resume.coefficient=0.5
+color.uda.resume=color250
+
+# url **************************************
+uda.url.label=Job URL
+uda.url.type=string
+urgency.uda.url.coefficient=0.3
+color.uda.url=color249
+
+# contact_name **************************************
+uda.contact_name.label=Contact Name
+uda.contact_name.type=string
+urgency.uda.contact_name.coefficient=0.5
+color.uda.contact_name=color248
+
+# contact_email **************************************
+uda.contact_email.label=Contact Email
+uda.contact_email.type=string
+urgency.uda.contact_email.coefficient=0.5
+color.uda.contact_email=color247
+
+# contact_phone **************************************
+uda.contact_phone.label=Contact Phone
+uda.contact_phone.type=string
+urgency.uda.contact_phone.coefficient=0.3
+color.uda.contact_phone=color246
+
+# location **************************************
+uda.location.label=Location
+uda.location.type=string
+urgency.uda.location.coefficient=1.0
+color.uda.location=color245
+
+# salary_min **************************************
+uda.salary_min.label=Minimum Salary
+uda.salary_min.type=numeric
+urgency.uda.salary_min.coefficient=0.2
+color.uda.salary_min=color244
+
+# salary_max **************************************
+uda.salary_max.label=Maximum Salary
+uda.salary_max.type=numeric
+urgency.uda.salary_max.coefficient=0.2
+color.uda.salary_max=color243
+
+# job_reference_id **************************************
+uda.job_reference_id.label=Job Reference ID
+uda.job_reference_id.type=string
+urgency.uda.job_reference_id.coefficient=0.5
+color.uda.job_reference_id=color242
+
+# notes **************************************
+uda.notes.label=Notes
+uda.notes.type=string
+urgency.uda.notes.coefficient=0.0
+color.uda.notes=color241
+
+# REPORTS ******************************************************************************************
+
+  # Job Applications Overview
+  report.jobapps.description="Job Applications Overview"
+  report.jobapps.columns=uuid.short,employer,job_title,application_date,appstat,location,url,resume
+  report.jobapps.labels=UUID,Employer,Job Title,App Date,Status,Location,URL,Resume
+  report.jobapps.sort=application_date+
+  # report.jobapps.filter=status:pending
+
+  # show ids
+
+  report.uuid.description=""
+  report.uuid.columns=id,uuid,description,status.short
+  report.uuid.labels=id,uuid,description,st
+  report.uuid.sort=id+
+
+  # adding due countdown to all report ***********************************************************
+
+  report.all.columns=id,status.short,uuid.short,start.active,entry.age,end.age,depends.indicator,priority,project.parent,tags.count,recur.indicator,wait.remaining,scheduled.remaining,due.countdown,until.remaining,description
+
+  # deleted tasks
+  
+  report.birthdays.description="Friends\'s and Family\'s Birthdays"
+  report.birthdays.columns=id,description,due,due.relative,status.short,urgency
+  report.birthdays.labels=id,who,date,due,st,urg
+  report.birthdays.sort=due+
+  report.birthdays.filter=+birthday +PENDING
+
+  # deleted tasks
+
+  report.trash.description=List all deleted tasks
+  report.trash.columns=status.short,uuid.short,description
+  report.trash.labels=St,uuid,desc
+  report.trash.sort=entry+
+  report.trash.filter=status:deleted
+
+  # simple
+
+  report.simple.description=Simple list of open tasks by project
+  report.simple.columns=id,project,description.count
+  report.simple.labels=ID,Proj,Desc                       # Labels are the column heading labels in the report.
+  report.simple.sort=project+\/,entry+                    # The / solidus indicates that project is a break column, which means a blank line is inserted between unique values, for a visual grouping effect.
+  report.simple.filter=status:pending limit:5             # Otherwise our report will just display all tasks
+
+  # last inserted
+
+  report.last_insert.description=Reports all info on last inserted task
+  report.last_insert.columns=id,uuid.short,status,start.active,depends.indicator,priority,project.parent,tags,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining,description
+  report.last_insert.labels=ID,UUID,Status,A,D,P,Project,Tags,R,Wait,Sch,Due,Until,Description
+  report.last_insert.sort=entry-
+  report.last_insert.filter=limit:1 status:pending
+
+# APPEARANCE **************************************************************************
+
+    # Color theme (uncomment one to use)
+    #include light-16.theme
+    #include light-256.theme
+    #include dark-16.theme
+    include dark-256.theme
+    #include dark-red-256.theme
+    #include dark-green-256.theme
+    #include dark-blue-256.theme
+    #include dark-violets-256.theme
+    #include dark-yellow-green.theme
+    #include dark-gray-256.theme
+    #include dark-gray-blue-256.theme
+    #include solarized-dark-256.theme
+    #include solarized-light-256.theme
+    #include no-color.theme
+
+# MISC *********************************************************************************
+news.version=3.2.0
