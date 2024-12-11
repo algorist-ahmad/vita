@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Use the command 'japp show' to see all defaults and overrides
+# task show [KEY-VALUE PAIR]
 
-# task show KEY-VALUE PAIRS ************************************************************************
+# GENERAL SETTINGS *******************************************************************************
 
 editor=$EDITOR
 verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
+print.empty.columns=yes
+default.command=jobapps
 
 # CONTEXTS *****************************************************************************************
 
@@ -46,6 +49,27 @@ verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,s
 
 # USER DEFINED ATTRIBUTES **************************************************************************
 
+# template *********************************************
+
+# where X is uda name and V is value, F is foreground color and B is background color
+
+# uda.X.type=string|numeric|date|duration
+# uda.X.label=
+# uda.X.default=
+# uda.X.indicator=
+# uda.X.values=
+# 
+# color.uda.X=F on B
+# color.uda.X.V=F on B
+# color.uda.X.none=F on B
+# 
+# urgency.uda.X.coefficient=
+# urgency.uda.X.V.coefficient=
+
+# these are the complete configuration of a uda
+
+# template *********************************************
+
 # employer **************************************
 uda.employer.label=Employer
 uda.employer.type=string
@@ -81,108 +105,92 @@ color.uda.resume=color250
 # url **************************************
 uda.url.label=Job URL
 uda.url.type=string
+uda.url.indicator=***
 urgency.uda.url.coefficient=0.3
 color.uda.url=color249
+# uda.url.default=
 
-# contact_name **************************************
+# contact_name ************************************
 uda.contact_name.label=Contact Name
 uda.contact_name.type=string
 urgency.uda.contact_name.coefficient=0.5
 color.uda.contact_name=color248
 
-# contact_email **************************************
+# contact_email ***********************************
 uda.contact_email.label=Contact Email
 uda.contact_email.type=string
 urgency.uda.contact_email.coefficient=0.5
 color.uda.contact_email=color247
 
-# contact_phone **************************************
+# contact_phone ***********************************
 uda.contact_phone.label=Contact Phone
 uda.contact_phone.type=string
 urgency.uda.contact_phone.coefficient=0.3
 color.uda.contact_phone=color246
 
-# location **************************************
+# location ****************************************
 uda.location.label=Location
 uda.location.type=string
 urgency.uda.location.coefficient=1.0
 color.uda.location=color245
 
 # salary_min **************************************
-uda.salary_min.label=Minimum Salary
+uda.salary.label=salary
 uda.salary_min.type=numeric
 urgency.uda.salary_min.coefficient=0.2
 color.uda.salary_min=color244
 
-# salary_max **************************************
-uda.salary_max.label=Maximum Salary
-uda.salary_max.type=numeric
-urgency.uda.salary_max.coefficient=0.2
-color.uda.salary_max=color243
-
-# job_reference_id **************************************
+# job_reference_id ********************************
 uda.job_reference_id.label=Job Reference ID
 uda.job_reference_id.type=string
 urgency.uda.job_reference_id.coefficient=0.5
 color.uda.job_reference_id=color242
 
-# notes **************************************
+# notes *******************************************
 uda.notes.label=Notes
 uda.notes.type=string
 urgency.uda.notes.coefficient=0.0
 color.uda.notes=color241
 
-# REPORTS ******************************************************************************************
+# REPORTS *****************************************
+
+  # Do $ task columns for details
+
+  # SPECIFY:
+    # 1. description
+    # 2. columns
+    # 3. labels
+    # 4. filter
+    # 5. sort
+    # 6. grouping*
 
   # Job Applications Overview
-  report.jobapps.description="Job Applications Overview"
-  report.jobapps.columns=uuid.short,employer,job_title,application_date,appstat,location,url,resume
-  report.jobapps.labels=UUID,Employer,Job Title,App Date,Status,Location,URL,Resume
-  report.jobapps.sort=application_date+
-  # report.jobapps.filter=status:pending
+    report.jobapps.description="Job Applications Overview"
+    report.jobapps.columns=id,uuid.short,employer,job_title,application_date,appstat,location,url.indicator,resume
+    report.jobapps.labels=id,UUID,employer,job title,app date,status,location,URL,resume
+    report.jobapps.sort=application_date+
+    # report.jobapps.filter=status:pending
+  # Job Applications Overview
 
-  # show ids
+  # url report
+    report.url.description='show url'
+    report.url.columns=id,uuid.short,job_title,description.truncated,url
+  # url report
 
-  report.uuid.description=""
-  report.uuid.columns=id,uuid,description,status.short
-  report.uuid.labels=id,uuid,description,st
-  report.uuid.sort=id+
-
-  # adding due countdown to all report ***********************************************************
-
-  report.all.columns=id,status.short,uuid.short,start.active,entry.age,end.age,depends.indicator,priority,project.parent,tags.count,recur.indicator,wait.remaining,scheduled.remaining,due.countdown,until.remaining,description
-
-  # deleted tasks
-  
-  report.birthdays.description="Friends\'s and Family\'s Birthdays"
-  report.birthdays.columns=id,description,due,due.relative,status.short,urgency
-  report.birthdays.labels=id,who,date,due,st,urg
-  report.birthdays.sort=due+
-  report.birthdays.filter=+birthday +PENDING
-
-  # deleted tasks
-
-  report.trash.description=List all deleted tasks
-  report.trash.columns=status.short,uuid.short,description
-  report.trash.labels=St,uuid,desc
-  report.trash.sort=entry+
-  report.trash.filter=status:deleted
-
-  # simple
-
-  report.simple.description=Simple list of open tasks by project
-  report.simple.columns=id,project,description.count
-  report.simple.labels=ID,Proj,Desc                       # Labels are the column heading labels in the report.
-  report.simple.sort=project+\/,entry+                    # The / solidus indicates that project is a break column, which means a blank line is inserted between unique values, for a visual grouping effect.
-  report.simple.filter=status:pending limit:5             # Otherwise our report will just display all tasks
+  # UUID REPORT
+    report.uuid.description=""
+    report.uuid.columns=id,uuid,description,status.short
+    report.uuid.labels=id,uuid,description,st
+    report.uuid.sort=id+
+  # UUID REPORT
 
   # last inserted
-
-  report.last_insert.description=Reports all info on last inserted task
-  report.last_insert.columns=id,uuid.short,status,start.active,depends.indicator,priority,project.parent,tags,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining,description
-  report.last_insert.labels=ID,UUID,Status,A,D,P,Project,Tags,R,Wait,Sch,Due,Until,Description
-  report.last_insert.sort=entry-
-  report.last_insert.filter=limit:1 status:pending
+    report.last_insert.description=Reports all info on last inserted task
+    report.last_insert.columns=id,uuid.short,status,start.active,depends.indicator,priority,project.parent,tags,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining,description
+    report.last_insert.labels=ID,UUID,Status,A,D,P,Project,Tags,R,Wait,Sch,Due,Until,Description
+    report.last_insert.sort=entry-
+    report.last_insert.filter=limit:1 status:pending
+  # last inserted
 
 # APPEARANCE **************************************************************************
 

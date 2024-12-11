@@ -1,0 +1,19 @@
+# vita job posting form v1.0
+
+# read-only, do not touch
+uuid: 
+# without special token lest url will not work
+url: 
+# job posting identifier
+reference: 
+
+job_title: 
+employer: 
+deadline: 
+location: 
+
+# 
+application_status: pending
+date_sent: today
+
+contact: 
