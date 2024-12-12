@@ -12,7 +12,8 @@ declare -A ENV=(
 
 declare -A FILE=(
     [log]="$LOGS/vita.log"
-    [help]="${ENV[root]}/doc/help.txt"
+    [help]="${ENV[root]}/aux/help.txt"
+    [form]="${ENV[root]}/aux/japp.form.yml"
 )
 
 declare -A ERROR=(

@@ -10,65 +10,55 @@ verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,s
 print.empty.columns=yes
 default.command=jobapps
 
-# CONTEXTS *****************************************************************************************
+# TABLE: JOB APPLICATIONS COLUMNS DEFINITION *****************************************************
 
-    # The attributes mentioned below are added to task
-    # automatically when the task is created.
+  # template *********************************************
 
-    #       DOM         TAG        PRIORITY    SCHEDULED   DUE
-    # -----------------------------------------------------------------------------
-    #context.work.read=  +work
-    #context.work.write= +work
-    #context.home.read=  +home
-    #context.home.write= +home
+    # where X is uda name and V is value, F is foreground color and B is background color
 
-# URGENCY TUNING ***********************************************************************************
+    # uda.X.type=string|numeric|date|duration
+    # uda.X.label=
+    # uda.X.default=
+    # uda.X.indicator=
+    # uda.X.values=
+    # 
+    # color.uda.X=F on B
+    # color.uda.X.V=F on B
+    # color.uda.X.none=F on B
+    # 
+    # urgency.uda.X.coefficient=
+    # urgency.uda.X.V.coefficient=
 
-    # special tags
+    # these are the complete configuration of a uda
 
-    # urgency.user.tag.auto.coefficient=1.5       # relating to my vehicles
-    # urgency.user.tag.coin.coefficient=1.0       # relating to my vehicles
-    # urgency.user.tag.rv.coefficient=4.0         # for appointments
-    # urgency.user.tag.sidequest.coefficient=-2.0 # sidequests should be at the bottom
-    # urgency.user.tag.vita.coefficient=0.5		# relating to my portfolio
-    # urgency.user.tag.work.coefficient=1.5       # small boost to work related tasks
+  # end of template *********************************************
 
-    # UDAs
+  # col 1: uuid (built in)
 
-	  urgency.uda.priority.C.coefficient=9.0   # CRITICAL
-    urgency.uda.priority.H.coefficient=6.0   # HIGH
-    urgency.uda.priority.M.coefficient=3.9   # MEDIUM
-    urgency.uda.priority.L.coefficient=1.8   # LOW
-    urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
+  # col 2: job reference id ********************************
+    uda.reference_id.label=Job Reference
+    uda.reference_id.type=string
+    uda.X.default=NULL
+    # uda.X.indicator=
+    # uda.X.values=
 
-    color.uda.priority.C=color255 on color9
-    color.uda.priority.H=color250
-    color.uda.priority.M=color245
-    color.uda.priority.L=color242
-    color.uda.priority.T=color240
+    urgency.uda.job_reference_id.coefficient=0.5
+    color.uda.job_reference_id=color242
+    # uda.X.type=string|numeric|date|duration
+     # uda.X.label=
+     # uda.X.default=
+     # uda.X.indicator=
+     # uda.X.values=
+     # 
+     # color.uda.X=F on B
+     # color.uda.X.V=F on B
+     # color.uda.X.none=F on B
+     # 
+     # urgency.uda.X.coefficient=
+     # urgency.uda.X.V.coefficient=
 
-# USER DEFINED ATTRIBUTES **************************************************************************
+  # end of col 2
 
-# template *********************************************
-
-# where X is uda name and V is value, F is foreground color and B is background color
-
-# uda.X.type=string|numeric|date|duration
-# uda.X.label=
-# uda.X.default=
-# uda.X.indicator=
-# uda.X.values=
-# 
-# color.uda.X=F on B
-# color.uda.X.V=F on B
-# color.uda.X.none=F on B
-# 
-# urgency.uda.X.coefficient=
-# urgency.uda.X.V.coefficient=
-
-# these are the complete configuration of a uda
-
-# template *********************************************
 
 # employer **************************************
 uda.employer.label=Employer
@@ -140,17 +130,48 @@ uda.salary_min.type=numeric
 urgency.uda.salary_min.coefficient=0.2
 color.uda.salary_min=color244
 
-# job_reference_id ********************************
-uda.job_reference_id.label=Job Reference ID
-uda.job_reference_id.type=string
-urgency.uda.job_reference_id.coefficient=0.5
-color.uda.job_reference_id=color242
-
 # notes *******************************************
 uda.notes.label=Notes
 uda.notes.type=string
 urgency.uda.notes.coefficient=0.0
 color.uda.notes=color241
+
+# CONTEXTS *****************************************************************************************
+
+    # The attributes mentioned below are added to task
+    # automatically when the task is created.
+
+    #       DOM         TAG        PRIORITY    SCHEDULED   DUE
+    # -----------------------------------------------------------------------------
+    #context.work.read=  +work
+    #context.work.write= +work
+    #context.home.read=  +home
+    #context.home.write= +home
+
+# URGENCY TUNING ***********************************************************************************
+
+    # special tags
+
+    # urgency.user.tag.auto.coefficient=1.5       # relating to my vehicles
+    # urgency.user.tag.coin.coefficient=1.0       # relating to my vehicles
+    # urgency.user.tag.rv.coefficient=4.0         # for appointments
+    # urgency.user.tag.sidequest.coefficient=-2.0 # sidequests should be at the bottom
+    # urgency.user.tag.vita.coefficient=0.5		# relating to my portfolio
+    # urgency.user.tag.work.coefficient=1.5       # small boost to work related tasks
+
+    # UDAs
+
+	  urgency.uda.priority.C.coefficient=9.0   # CRITICAL
+    urgency.uda.priority.H.coefficient=6.0   # HIGH
+    urgency.uda.priority.M.coefficient=3.9   # MEDIUM
+    urgency.uda.priority.L.coefficient=1.8   # LOW
+    urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
+
+    color.uda.priority.C=color255 on color9
+    color.uda.priority.H=color250
+    color.uda.priority.M=color245
+    color.uda.priority.L=color242
+    color.uda.priority.T=color240
 
 # REPORTS *****************************************
 
