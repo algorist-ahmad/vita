@@ -2,8 +2,8 @@
 
 declare -A ENV=(
     [root]=$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")") # path to project root
-    [config]="${VITARC:-$HOME/.vitarc}"                                 # 
-    [data]="${VITADATA:-$HOME/.vita}"
+    [config]="${QUESTRC:-ENV[root]/cfg/quest}"
+    [data]="${QUESTDATA:-$HOME/.vita/applications}"
     [message]='' # post-execution messages and warnings go here
     [pwd]=$(pwd)
     [error]=0
@@ -12,8 +12,7 @@ declare -A ENV=(
 
 declare -A FILE=(
     [log]="$LOGS/vita.log"
-    [help]="${ENV[root]}/aux/help.txt"
-    [form]="${ENV[root]}/aux/quest.form.yml"
+    [help]="${ENV[root]}/doc/help.txt"
 )
 
 declare -A ERROR=(
@@ -32,16 +31,36 @@ declare -A ARG=(
         [help]=0
         [stat]=0
         [config]='null'       # show, key:value
-        [quest]='null'        # list, add, del, show, edit
-        [cv]='null'           # list, add, del, show, edit, clone, query, render
-        [template]='null'     # list, add, del, show, edit
-        [doc]='null'          # list, add, del, show
-        [render]='null'       # <resume-uuid> [--template <template-label>] [--output <file-path>]
-        [link]='null'         # <job-id> <resume-uuid>
         [unknown]='null'      # unknown args
     )
 
 #########################################################
+
+# QUEST
+
+run-quest() {
+  TASKRC="${ENV[config]}"
+  TASKDATA="${ENV[data]}"
+
+  DEFAULT_REPORT='jobapps' # name of the special report
+
+  case "$1" in
+    '')
+      operation=$DEFAULT_REPORT ;;
+    add)
+      operation='add' ;;
+    mod* | modify)
+      operation='modify' ;;
+    del* | delete)
+      operation='delete' ;;
+    --)
+      operation='' ;; # turn off report to enable all commands
+  esac
+  
+  task $operation "$@"
+}
+
+########################################################
 
 main() {
     initialize   # setup environment and check for missing files
@@ -79,30 +98,9 @@ parse() {
                 ARG[config]='' ;
                 last_option='config' ;
                 ;;
-            quest* | qst | jobs | -q)
-                ARG[quest]='' ;
-                last_option='quest' ;
-                ;;
-            cv | resume | -c)
-                ARG[cv]="" ;
-                last_option='cv' ;
-                ;;
-            template* | tmpl | -t)
-                ARG[template]='' ;
-                last_option='template' ;
-                ;;
-            doc | -d)
-                ARG[doc]='' ;
-                last_option='doc' ;
-                ;;
-            --render)
-                # [[ "$last_option" == 'cv' ]]
-                ARG[render]='' ;
-                last_option='render' ;
-                ;;
-            link | -l)
-                ARG[link]='' ;
-                last_option='link' ;
+            job | -j)
+                ARG[job]='' ;
+                last_option='job' ;
                 ;;
             null)
                 ENV[message]+='null has special meaning, rejected\n' ;
@@ -131,7 +129,7 @@ dispatch() {
     e="${ENV[error]}"
     root="${ENV[root]}"
     cv="$root/src/cv.sh"
-    job="$root/src/quest.sh"
+    job="$root/src/job.sh"
     template="$root/src/template.sh"
     
     # if an error is detected, output to stderr immediately
@@ -143,7 +141,7 @@ dispatch() {
     is_true ${ARG[help]} && print_help
     is_true "${ARG[stat]}" && echo "stat: nothing happened"
     ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
-    ! is_null "${ARG[quest]}" && source $job ${ARG[quest]}
+    ! is_null "${ARG[job]}" && source $job ${ARG[job]}
     ! is_null "${ARG[template]}" && source $template ${ARG[template]}
     ! is_null "${ARG[doc]}" && echo "doc: nothing happened"
     ! is_null "${ARG[config]}" && echo "config file: ${ENV[config]}"
@@ -301,4 +299,5 @@ is_true() { [[ "$1" -eq 1      ]] }
 
 # helpers
 
-main "$@"
+# main "$@"
+run-quest "$@"
