@@ -131,7 +131,7 @@ dispatch() {
     e="${ENV[error]}"
     root="${ENV[root]}"
     cv="$root/src/cv.sh"
-    job="$root/src/quest.sh"
+    quest="$root/src/quest.sh"
     template="$root/src/template.sh"
     
     # if an error is detected, output to stderr immediately
@@ -143,16 +143,11 @@ dispatch() {
     is_true ${ARG[help]} && print_help
     is_true "${ARG[stat]}" && echo "stat: nothing happened"
     ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
-    ! is_null "${ARG[quest]}" && source $job ${ARG[quest]}
+    ! is_null "${ARG[quest]}" && source $quest ${ARG[quest]}
     ! is_null "${ARG[template]}" && source $template ${ARG[template]}
     ! is_null "${ARG[doc]}" && echo "doc: nothing happened"
     ! is_null "${ARG[config]}" && echo "config file: ${ENV[config]}"
     ! is_null "${ARG[render]}" && echo "render: nothing happened"
-    
-    # ...else
-    #     echo "Error: No valid operation specified." >&2
-    #     exit 1
-    # fi
 }
 
 terminate() {

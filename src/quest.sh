@@ -1,303 +1,183 @@
 #!/bin/bash
 
-declare -A ENV=(
-    [root]=$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")") # path to project root
-    [config]="${QUESTRC:-ENV[root]/cfg/quest}"
-    [data]="${QUESTDATA:-$HOME/.vita/applications}"
-    [message]='' # post-execution messages and warnings go here
-    [pwd]=$(pwd)
-    [error]=0
-    [argless]=0
+declare -A QUEST_ENV=(
+    [default_cmd]='display_full_table'
+    [config]="$QUESTRC"
+    [data]="$QUESTDATA"
 )
 
-declare -A FILE=(
-    [log]="$LOGS/vita.log"
-    [help]="${ENV[root]}/doc/help.txt"
+declare -A QUEST_ARG=(
+    [input]="$@"
+    [select]=1
+    [add]='null'
+    [modify]='null'
+    [delete]='null'
+    [execute]='null'
+    [filter]=''
 )
-
-declare -A ERROR=(
-    [0]='OK'
-    [150]='ERROR 150: no resume identifier'
-    [151]='ERROR 151: no such resume'
-    [152]='ERROR 152: no cv.tex file'
-    [153]='ERROR 4: desc'
-    [154]='ERROR 5: desc'
-    [155]='ERROR 6: desc'
-)
-
-declare -A ARG=(
-        [input]="$@"
-        [debug]=0
-        [help]=0
-        [stat]=0
-        [config]='null'       # show, key:value
-        [unknown]='null'      # unknown args
-    )
 
 #########################################################
 
-# QUEST
-
-run-quest() {
-  TASKRC="${ENV[config]}"
-  TASKDATA="${ENV[data]}"
-
-  DEFAULT_REPORT='jobapps' # name of the special report
-
-  case "$1" in
-    '')
-      operation=$DEFAULT_REPORT ;;
-    add)
-      operation='add' ;;
-    mod* | modify)
-      operation='modify' ;;
-    del* | delete)
-      operation='delete' ;;
-    --)
-      operation='' ;; # turn off report to enable all commands
-  esac
-  
-  task $operation "$@"
-}
-
-########################################################
-
-main() {
-    initialize   # setup environment and check for missing files
-    parse "$@"   # break input for analysis
-    validate     # validate the operation
-    dispatch     # execute the operation
-    terminate    # execute post-script tasks regardless of operation
+quest_main() {
+    quest_initialize   # setup environment and check for missing files
+    quest_parse "$@"   # break input for analysis
+    quest_validate     # validate the operation
+    quest_dispatch     # execute the operation
+    quest_terminate    # execute post-script tasks regardless of operation
 }
 
 # prepare program for execution
-initialize() {
-    create_config_file
-    create_data_directory
-    handle_argless_run
+quest_initialize() {
+    :
+    # TODO: check if QUESTRC and QUESTDATA exits AND are valid
 }
 
-parse() {
-
-    local last_option='unknown'
+quest_parse() {
     
-    # Iterate over arguments using a while loop
+    local last_option='filter'
+    local option_locked= # latched onto last operation specified, cannot be changed once set
+    local ignore= # for special keywords
+    
+    # Iterate over arguments using a while loop, what actions can quest do?
     while [[ $# -gt 0 ]]; do
         case "$1" in
-
-            debug | --debug)
-                ARG[debug]=1 ;
-                ;;
-            help | --help | -h)
-                ARG[help]=1 ;
-                ;;
-            stat)
-                ARG[stat]=1 ;
-                ;;               
-            config)
-                ARG[config]='' ;
-                last_option='config' ;
-                ;;
-            job | -j)
-                ARG[job]='' ;
-                last_option='job' ;
-                ;;
-            null)
-                ENV[message]+='null has special meaning, rejected\n' ;
-                ;;
-            --)
-                last_option='unknown' ; # resets last option
-                ;;
+            exe* | --execute | -x)
+                # execute arguments by quest as is
+                QUEST_ARG[execute]=''
+                QUEST_ARG[select]=0
+                [[ ! $option_locked ]] && option_locked=1 && last_option='execute'
+                ignore=1
+                ;;&
+            add | --insert | --add | -a | -i)
+                QUEST_ARG[add]=''
+                QUEST_ARG[select]=0
+                [[ ! $option_locked ]] && option_locked=1 && last_option='add'
+                ignore=1
+                ;;&
+            mod* | --modify | -u | -m)
+                QUEST_ARG[modify]=''
+                QUEST_ARG[select]=0
+                [[ ! $option_locked ]] && option_locked=1 && last_option='modify'
+                ignore=1
+                ;;&
+            del* | --delete | -d)
+                QUEST_ARG[delete]=''
+                QUEST_ARG[select]=0
+                [[ ! $option_locked ]] && option_locked=1 && last_option='delete'
+                ignore=1
+                ;;&
             *)
-                # if last option is unknown clear ARG[unknown]
-                [[ "$last_option" == 'unknown' ]] && is_null "${ARG[unknown]}" && ARG[unknown]=''
                 # last option specified captures the argument
-                ARG[$last_option]="${ARG[$last_option]} $1" ;
+                if [[ $ignore -eq 0 ]]; then
+                    QUEST_ARG[$last_option]="${QUEST_ARG[$last_option]} $1" ;
+                else
+                    ignore=0 ;
+                fi
                 ;;
 
         esac ; shift # discard argument
     done
 }
 
-# makes sure no contradicting operation is ordered
-validate() {
+quest_validate() {
     :
 }
 
-dispatch() {
+quest_dispatch() {
 
-    e="${ENV[error]}"
-    root="${ENV[root]}"
-    cv="$root/src/cv.sh"
-    job="$root/src/job.sh"
-    template="$root/src/template.sh"
+    TASKRC="${QUEST_ENV[config]}"
+    TASKDATA="${QUEST_ENV[data]}"
     
+    run_default_command="${QUEST_ENV[default_cmd]}"
+    select="${QUEST_ARG[select]}"
+    add_args="${QUEST_ARG[add]}"
+    mod_args="${QUEST_ARG[modify]}"
+    del_args="${QUEST_ARG[delete]}"
+    exe_args="${QUEST_ARG[execute]}"
+    filter="${QUEST_ARG[filter]}"
+    
+    # report errors if any
+    report_error
+
+    # execute action based on input
+    if no_arg; then $run_default_command; return; fi
+    is_true $select && quest_select "$filter"
+    ! is_null "$add_args" && quest_insert "$add_args"
+    ! is_null "$mod_args" && quest_modify "$filter" "$mod_args"
+    ! is_null "$del_args" && quest_delete "$filter" "$del_args"
+    ! is_null "$exe_args" && quest_execute "$exe_args"
+
+}
+
+quest_execute() {
+  # for debugging
+  QUEST_ARG[complete_command]="task $operation $@"
+  # EXECUTE
+  task $@
+}
+
+quest_terminate() {
+    # Join CV_ARG into ARG with keys prefixed by "cv_"
+    join_arrays QUEST_ARG ARG "quest_"
+    join_arrays QUEST_ENV ENV "quest_"
+    # return to parent (vita)
+    return $error_number
+}
+
+display_full_table() {
+    task
+}
+
+quest_select() {
+    echo "quest select"
+}
+
+quest_insert(){
+    echo "quest insert"
+}
+
+quest_modify() {
+    echo "quest modify"
+}
+
+quest_delete() {
+    echo "quest delete"
+}
+
+quest_execute() {
+    echo "bypassing wrapper"
+}
+
+# helpers
+
+    set_env() { echo "${ENV[$1]}"; }
+    get_file() { echo "${FILE[$1]}"; }
+    get_error_msg() { echo "${ERROR[$1]}"; }
+    is_null() { [[ "$1" ==  'null' ]] }
+    is_true() { [[ "$1" -eq 1      ]] }
+    no_arg() { [[ -z "${QUEST_ARG[input]}" ]] }
+
     # if an error is detected, output to stderr immediately
-    if [[ $e -gt 0 ]]; then
-        echo "Error: $(get_error_msg $e)" >&2
-        exit $e
-    fi
-
-    is_true ${ARG[help]} && print_help
-    is_true "${ARG[stat]}" && echo "stat: nothing happened"
-    ! is_null "${ARG[cv]}" && source $cv ${ARG[cv]} # removed quotes because of leading whitespace
-    ! is_null "${ARG[job]}" && source $job ${ARG[job]}
-    ! is_null "${ARG[template]}" && source $template ${ARG[template]}
-    ! is_null "${ARG[doc]}" && echo "doc: nothing happened"
-    ! is_null "${ARG[config]}" && echo "config file: ${ENV[config]}"
-    ! is_null "${ARG[render]}" && echo "render: nothing happened"
-    
-    # ...else
-    #     echo "Error: No valid operation specified." >&2
-    #     exit 1
-    # fi
-}
-
-terminate() {
-
-    final_message="${ENV[message]}"
-    unknown_args="${ARG[unknown]}"
-    error_number=${ENV[error]}
-    error_msg="${ERROR[$error_number]}"
-
-    # warn of unknown arguments
-    ! is_null "$unknown_args" && final_message+="Unknown arguments: $unknown_args\n"
-
-    # if debug is true, reveal variables
-    is_true ${ARG[debug]} && reveal_variables
-
-    # if there are any errors, print
-    [[ $error_number -gt 0 ]] && echo -e "$error_msg"
-
-    # if there are any final messages, print
-    [[ -n "$final_message" ]] && echo -e "\n$final_message"
-
-    exit $error_number
-}
-
-print_help() {
-    bat $(get_file help)
-}
-
-# Loop through the keys of the associative array and print key-value pairs
-reveal_variables() {
-    local yellow="\033[33m"
-    local green="\033[32m"
-    local red="\033[31m"
-    local purple="\033[35m"
-    local cyan="\033[36m"
-    local reset="\033[0m"
-
-    echo -e "--- ARGUMENTS ---"
-    for key in "${!ARG[@]}"; do
-        value="${ARG[$key]}"
-        value="${value%"${value##*[![:space:]]}"}"  # Trim trailing whitespace
-        value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
-        color="$reset"
-
-        if [[ $value == 'null' ]]; then
-            value=""  # Null value
-        elif [[ -z $value ]]; then
-            value="EMPTY"  # Empty string
-            color=$cyan    # Empty value
-        elif [[ $value == '1' ]]; then
-            color=$green   # True value
-        elif [[ $value == '0' ]]; then
-            color=$red     # False value
+    report_error() {
+        e="${ENV[error]}"
+        if [[ $e -gt 0 ]]; then
+            echo "Error: $(get_error_msg $e)" >&2
+            exit $e
         fi
+    }
 
-        printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
-    done
+    # Function to join arrays with prefixed keys
+    join_arrays() {
+        local -n source_array=$1  # Source array to prefix and join
+        local -n target_array=$2  # Target array to join into
+        local prefix=$3           # Prefix to add to source array keys
 
-    echo -e "--- ENVIRONMENT ---"
-    for key in "${!ENV[@]}"; do
-        value="${ENV[$key]}"
-        value="${value%"${value##*[![:space:]]}"}"  # Trim trailing whitespace
-        value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
-        color="$reset"
-
-        if [[ $value == 'null' ]]; then
-            value=""  # Null value
-        elif [[ -z $value ]]; then
-            value="EMPTY"  # Empty string
-            color=$cyan    # Empty value
-        elif [[ $value == '1' ]]; then
-            color=$green   # True value
-        elif [[ $value == '0' ]]; then
-            color=$red     # False value
-        fi
-
-        printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
-    done
-
-    echo -e "--- FILES ---"
-    for key in "${!FILE[@]}"; do
-        value="${FILE[$key]}"
-        value="${value%"${value##*[![:space:]]}"}"  # Trim trailing whitespace
-        value="${value#"${value%%[![:space:]]*}"}"  # Trim leading whitespace
-        color="$reset"
-
-        if [[ $value == 'null' ]]; then
-            value=""  # Null value
-        elif [[ -z $value ]]; then
-            value="EMPTY"  # Empty string
-            color=$cyan    # Empty value
-        elif [[ $value == '1' ]]; then
-            color=$green   # True value
-        elif [[ $value == '0' ]]; then
-            color=$red     # False value
-        fi
-
-        printf "${yellow}%-20s${reset} : ${color}%s${reset}\n" "$key" "$value"
-    done
-}
-
-create_config_file() {
-    file="${ENV[config]}"
-    if [[ ! -f $file ]]; then
-        echo '# created by vita' > $file
-        ENV[message]+="No config file found, created one at $file\n"
-    fi
-}
-
-create_data_directory() {
-    dir="${ENV[data]}"
-    if [[ ! -d $dir ]]; then
-        mkdir -p $dir
-        ENV[message]+="No data directory found, create one at $dir\n"
-    fi
-}
-
-handle_argless_run() {
-    # if no arg provided, get help
-    if [[ -z "${ARG[input]}" ]]; then
-        ENV[argless]=1
-        #ARG[help]=1
-        echo -e "
-    Commands:
-        help          Display help information for commands and subcommands.
-        quest         Manage job offers and applications.
-        cv            Manage resumes (including the master CV) and filtered YAML resumes.
-        render        Render a YAML resume to PDF.
-        template      Manage resume templates.
-        doc           Manage supporting documents.
-        config        Manage global settings and preferences.
-        stats         Display statistics about job applications, resumes, and templates.
-        "
-    fi
-}
+        for key in "${!source_array[@]}"; do
+            new_key="${prefix}${key}"  # Create prefixed key
+            target_array["$new_key"]="${source_array[$key]}"  # Add to target array
+        done
+    }
 
 # helpers
 
-set_env() { echo "${ENV[$1]}"; }
-get_file() { echo "${FILE[$1]}"; }
-get_error_msg() { echo "${ERROR[$1]}"; }
-is_null() { [[ "$1" ==  'null' ]] }
-is_true() { [[ "$1" -eq 1      ]] }
-# is_null() { [[ "$1" == 'null' ]] && return 0 || return 1 ; } # deprecated
-# is_true() { [[ "$1" -eq 1 ]] && return 0 || return  1 ; } # deprecated
-
-# helpers
-
-# main "$@"
-run-quest "$@"
+quest_main "$@"
