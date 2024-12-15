@@ -1,90 +1,57 @@
 #!/bin/bash
 
-# Use the command 'japp show' to see all defaults and overrides
+# Use the command 'quest show' to see all defaults and overrides
 # task show [KEY-VALUE PAIR]
+
+include dark-256.theme
 
 # GENERAL SETTINGS *******************************************************************************
 
-editor=$EDITOR
-verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
-print.empty.columns=yes
-default.command=jobapps
+  editor=$EDITOR
+  verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
+  print.empty.columns=yes
+  default.command=jobapps
+  exit.on.missing.db=yes
 
 # TABLE: JOB APPLICATIONS COLUMNS DEFINITION *****************************************************
-
-  # template *********************************************
-
-    # where X is uda name and V is value, F is foreground color and B is background color
-
-    # uda.X.type=string|numeric|date|duration
-    # uda.X.label=
-    # uda.X.default=
-    # uda.X.indicator=
-    # uda.X.values=
-    # 
-    # color.uda.X=F on B
-    # color.uda.X.V=F on B
-    # color.uda.X.none=F on B
-    # 
-    # urgency.uda.X.coefficient=
-    # urgency.uda.X.V.coefficient=
-
-    # these are the complete configuration of a uda
-
-  # end of template *********************************************
 
   # col 1: uuid (built in)
 
   # col 2: job reference id ********************************
-    uda.reference_id.label=Job Reference
+    uda.reference_id.label=reference
     uda.reference_id.type=string
-    uda.X.default=NULL
-    # uda.X.indicator=
-    # uda.X.values=
+    uda.reference_id.default=MISSING
+    urgency.uda.reference_id.coefficient=0.5
+    color.uda.reference_id=color242
+    color.uda.reference_id.MISSING=white on red
+  # end of col 2 ********************************************
 
-    urgency.uda.job_reference_id.coefficient=0.5
-    color.uda.job_reference_id=color242
-    # uda.X.type=string|numeric|date|duration
-     # uda.X.label=
-     # uda.X.default=
-     # uda.X.indicator=
-     # uda.X.values=
-     # 
-     # color.uda.X=F on B
-     # color.uda.X.V=F on B
-     # color.uda.X.none=F on B
-     # 
-     # urgency.uda.X.coefficient=
-     # urgency.uda.X.V.coefficient=
+  # col 3: role  ********************************
+    # Role title will use the built-in description column
+  # col 3: role  ********************************
 
-  # end of col 2
+  # col 4: employer  ********************************
+    uda.employer.label=employer
+    uda.employer.type=string
+    urgency.uda.employer.coefficient=1.0
+    color.uda.employer=color254
+  # col 4: employer  ********************************
 
+  # col 4: application date sent ********************************
+    uda.date_sent.label=date sent
+    uda.date_sent.type=date
+    urgency.uda.date_sent.coefficient=3.0
+    color.uda.date_sent=color252
+  # col 4: application date sent  ********************************
 
-# employer **************************************
-uda.employer.label=Employer
-uda.employer.type=string
-urgency.uda.employer.coefficient=1.0
-color.uda.employer=color254
-
-# job_title **************************************
-uda.job_title.label=Job Title
-uda.job_title.type=string
-urgency.uda.job_title.coefficient=1.0
-color.uda.job_title=color253
-
-# application_date **************************************
-uda.application_date.label=Application Date
-uda.application_date.type=date
-urgency.uda.application_date.coefficient=-0.2
-color.uda.application_date=color252
-
-# status **************************************
-uda.appstat.label=Status
-uda.appstat.type=string
-uda.appstat.values=pending,interviewing,offered,rejected
-uda.appstat.default=Pending
-urgency.uda.appstat.coefficient=2.0
-color.uda.appstat=color251
+  # col 5: response  ********************************
+    uda.response.label=response
+    uda.response.type=string
+    uda.response.values=unsent,pending,interviewing,offered,rejected
+    uda.response.default=unsent
+    urgency.uda.response.coefficient=2.0
+    color.uda.response=color251
+  # col 5: response  ********************************
 
 # resume **************************************
 uda.resume.label=Resume UUID
@@ -136,42 +103,18 @@ uda.notes.type=string
 urgency.uda.notes.coefficient=0.0
 color.uda.notes=color241
 
-# CONTEXTS *****************************************************************************************
-
-    # The attributes mentioned below are added to task
-    # automatically when the task is created.
-
-    #       DOM         TAG        PRIORITY    SCHEDULED   DUE
-    # -----------------------------------------------------------------------------
-    #context.work.read=  +work
-    #context.work.write= +work
-    #context.home.read=  +home
-    #context.home.write= +home
-
-# URGENCY TUNING ***********************************************************************************
-
-    # special tags
-
-    # urgency.user.tag.auto.coefficient=1.5       # relating to my vehicles
-    # urgency.user.tag.coin.coefficient=1.0       # relating to my vehicles
-    # urgency.user.tag.rv.coefficient=4.0         # for appointments
-    # urgency.user.tag.sidequest.coefficient=-2.0 # sidequests should be at the bottom
-    # urgency.user.tag.vita.coefficient=0.5		# relating to my portfolio
-    # urgency.user.tag.work.coefficient=1.5       # small boost to work related tasks
-
-    # UDAs
-
-	  urgency.uda.priority.C.coefficient=9.0   # CRITICAL
-    urgency.uda.priority.H.coefficient=6.0   # HIGH
-    urgency.uda.priority.M.coefficient=3.9   # MEDIUM
-    urgency.uda.priority.L.coefficient=1.8   # LOW
-    urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
-
-    color.uda.priority.C=color255 on color9
-    color.uda.priority.H=color250
-    color.uda.priority.M=color245
-    color.uda.priority.L=color242
-    color.uda.priority.T=color240
+# priority *****************************************
+urgency.uda.priority.C.coefficient=9.0   # CRITICAL
+urgency.uda.priority.H.coefficient=6.0   # HIGH
+urgency.uda.priority.M.coefficient=3.9   # MEDIUM
+urgency.uda.priority.L.coefficient=1.8   # LOW
+urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
+color.uda.priority.C=color255 on color9
+color.uda.priority.H=color250
+color.uda.priority.M=color245
+color.uda.priority.L=color242
+color.uda.priority.T=color240
+# priority *****************************************
 
 # REPORTS *****************************************
 
@@ -187,9 +130,9 @@ color.uda.notes=color241
 
   # Job Applications Overview
     report.jobapps.description="Job Applications Overview"
-    report.jobapps.columns=id,uuid.short,employer,job_title,application_date,appstat,location,url.indicator,resume
-    report.jobapps.labels=id,UUID,employer,job title,app date,status,location,URL,resume
-    report.jobapps.sort=application_date+
+    report.jobapps.columns=id,description.truncated,employer,date_sent,response,location,url.indicator,resume,reference_id
+    # report.jobapps.labels= id, UUID,       status   employer, job title, app date,         location, URL,           resume
+    report.jobapps.sort=date_sent+
     # report.jobapps.filter=status:pending
   # Job Applications Overview
 
@@ -213,23 +156,27 @@ color.uda.notes=color241
     report.last_insert.filter=limit:1 status:pending
   # last inserted
 
-# APPEARANCE **************************************************************************
+# ALIASES ******************************************************************
+  alias.insert=add # example
 
-    # Color theme (uncomment one to use)
-    #include light-16.theme
-    #include light-256.theme
-    #include dark-16.theme
-    include dark-256.theme
-    #include dark-red-256.theme
-    #include dark-green-256.theme
-    #include dark-blue-256.theme
-    #include dark-violets-256.theme
-    #include dark-yellow-green.theme
-    #include dark-gray-256.theme
-    #include dark-gray-blue-256.theme
-    #include solarized-dark-256.theme
-    #include solarized-light-256.theme
-    #include no-color.theme
+# TEMPLATES ******************************************************************
+
+    # where X is uda name and V is value, F is foreground color and B is background color
+
+    # uda.X.type=string|numeric|date|duration
+    # uda.X.label=
+    # uda.X.default=
+    # uda.X.indicator=
+    # uda.X.values=
+    # 
+    # color.uda.X=F on B
+    # color.uda.X.V=F on B
+    # color.uda.X.none=F on B
+    # 
+    # urgency.uda.X.coefficient=
+    # urgency.uda.X.V.coefficient=
+
+    # these are the complete configuration of a uda
 
 # MISC *********************************************************************************
 news.version=3.2.0
