@@ -10,111 +10,131 @@ include dark-256.theme
   editor=$EDITOR
   verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
   print.empty.columns=yes
-  default.command=jobapps
+  default.command=fulltable
   exit.on.missing.db=yes
 
 # TABLE: JOB APPLICATIONS COLUMNS DEFINITION *****************************************************
 
-  # col 1: uuid (built in)
+  # Columns are defined according to vita job posting form v1.0
 
-  # col 2: job reference id ********************************
+  # uuid: #READ-ONLY
+  # url: 
+  # reference: 
+  # due: 
+  # priority: 
+  # date_applied: 
+  # application_status: 
+  # resume: 
+  # title: 
+  # employer: 
+  # industry: 
+  # location: 
+  # salary: 
+  # contact:
+  #     name: 
+  #     email: 
+  #     phone: 
+  # tags: 
+  # notes: 
+
+  # uuid (built in)
+
+  # url **************************************
+    uda.url.label=URL
+    uda.url.type=string
+    uda.url.indicator=***
+    color.uda.url=color249
+  # url **************************************
+
+  # job reference id ********************************
     uda.reference_id.label=reference
     uda.reference_id.type=string
-    uda.reference_id.default=MISSING
-    urgency.uda.reference_id.coefficient=0.5
     color.uda.reference_id=color242
-    color.uda.reference_id.MISSING=white on red
-  # end of col 2 ********************************************
+  # reference  ********************************************
 
-  # col 3: role  ********************************
-    # Role title will use the built-in description column
-  # col 3: role  ********************************
+  # deadline (built-in)
 
-  # col 4: employer  ********************************
+  # priority *****************************************
+    urgency.uda.priority.C.coefficient=9.0   # CRITICAL
+    urgency.uda.priority.H.coefficient=6.0   # HIGH
+    urgency.uda.priority.M.coefficient=3.9   # MEDIUM
+    urgency.uda.priority.L.coefficient=1.8   # LOW
+    urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
+    color.uda.priority.C=color255 on color9
+    color.uda.priority.H=color250
+    color.uda.priority.M=color245
+    color.uda.priority.L=color242
+    color.uda.priority.T=color240
+  # priority *****************************************
+
+  # application date sent ********************************
+    uda.date_applied.label=date applied
+    uda.date_applied.type=date
+    urgency.uda.date_applied.coefficient=1.0
+    color.uda.date_applied=color252
+  # application date sent  ********************************
+
+  # col 5: status  **********************************************
+    uda.udastatus.label=status
+    uda.udastatus.type=string
+    uda.udastatus.values=unapplied,applied,pending,interviewing,offered,rejected
+    uda.udastatus.default=unapplied
+    urgency.uda.udastatus.coefficient=2.0
+    color.uda.udastatus=color251
+  # col 5: status  **********************************************
+
+  # resume **************************************
+    uda.resume.label=resume id
+    uda.resume.type=string
+    urgency.uda.resume.coefficient=1.0
+    color.uda.resume=color250
+  # resume **************************************
+
+  # col 3: title  **********************************************
+    uda.title.label=job title
+    uda.title.type=string
+    color.uda.title=color254
+  # col 3: title  **********************************************
+
+  # col 4: employer  **********************************************
     uda.employer.label=employer
     uda.employer.type=string
     urgency.uda.employer.coefficient=1.0
     color.uda.employer=color254
-  # col 4: employer  ********************************
+  # col 4: employer  **********************************************
 
-  # col 4: application date sent ********************************
-    uda.date_sent.label=date sent
-    uda.date_sent.type=date
-    urgency.uda.date_sent.coefficient=3.0
-    color.uda.date_sent=color252
-  # col 4: application date sent  ********************************
+  # industry ******************************************
+    uda.industry.label=industry
+    uda.industry.type=string
+    color.uda.industry=color245
+  # industry ****************************************
 
-  # col 5: response  ********************************
-    uda.response.label=response
-    uda.response.type=string
-    uda.response.values=unsent,pending,interviewing,offered,rejected
-    uda.response.default=unsent
-    urgency.uda.response.coefficient=2.0
-    color.uda.response=color251
-  # col 5: response  ********************************
+  # location ****************************************
+    uda.location.label=location
+    uda.location.type=string
+    urgency.uda.location.coefficient=1.0
+    color.uda.location=color245
+  # location ****************************************
 
-# resume **************************************
-uda.resume.label=Resume UUID
-uda.resume.type=string
-urgency.uda.resume.coefficient=0.5
-color.uda.resume=color250
+  # salary ******************************************
+    uda.salary.label=salary
+    uda.salary.type=numeric
+    urgency.uda.salary.coefficient=1.0
+    color.uda.salary=color244
+  # salary ****************************************** 
 
-# url **************************************
-uda.url.label=Job URL
-uda.url.type=string
-uda.url.indicator=***
-urgency.uda.url.coefficient=0.3
-color.uda.url=color249
-# uda.url.default=
+  # col 6: contact  **********************************************
+    uda.contact.label=contact
+    uda.contact.type=string # yaml
+    urgency.uda.contact.coefficient=1.0
+    color.uda.contact=color251
+  # col 6: contact  **********************************************
 
-# contact_name ************************************
-uda.contact_name.label=Contact Name
-uda.contact_name.type=string
-urgency.uda.contact_name.coefficient=0.5
-color.uda.contact_name=color248
+  # tags (built-in)
 
-# contact_email ***********************************
-uda.contact_email.label=Contact Email
-uda.contact_email.type=string
-urgency.uda.contact_email.coefficient=0.5
-color.uda.contact_email=color247
-
-# contact_phone ***********************************
-uda.contact_phone.label=Contact Phone
-uda.contact_phone.type=string
-urgency.uda.contact_phone.coefficient=0.3
-color.uda.contact_phone=color246
-
-# location ****************************************
-uda.location.label=Location
-uda.location.type=string
-urgency.uda.location.coefficient=1.0
-color.uda.location=color245
-
-# salary_min **************************************
-uda.salary.label=salary
-uda.salary_min.type=numeric
-urgency.uda.salary_min.coefficient=0.2
-color.uda.salary_min=color244
-
-# notes *******************************************
-uda.notes.label=Notes
-uda.notes.type=string
-urgency.uda.notes.coefficient=0.0
-color.uda.notes=color241
-
-# priority *****************************************
-urgency.uda.priority.C.coefficient=9.0   # CRITICAL
-urgency.uda.priority.H.coefficient=6.0   # HIGH
-urgency.uda.priority.M.coefficient=3.9   # MEDIUM
-urgency.uda.priority.L.coefficient=1.8   # LOW
-urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
-color.uda.priority.C=color255 on color9
-color.uda.priority.H=color250
-color.uda.priority.M=color245
-color.uda.priority.L=color242
-color.uda.priority.T=color240
-# priority *****************************************
+  # notes *******************************************
+    # notes will use the built-in description
+  # notes
 
 # REPORTS *****************************************
 
@@ -128,12 +148,17 @@ color.uda.priority.T=color240
     # 5. sort
     # 6. grouping*
 
+  # Full Table
+    report.fulltable.description="All defined UDAs"
+    report.fulltable.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags,description.truncated,urgency,uuid.short
+    report.fulltable.labels=id,url,reference,deadline,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid.short
+    # report.fulltable.sort=
+  # Full Table
+
   # Job Applications Overview
-    report.jobapps.description="Job Applications Overview"
-    report.jobapps.columns=id,description.truncated,employer,date_sent,response,location,url.indicator,resume,reference_id
-    # report.jobapps.labels= id, UUID,       status   employer, job title, app date,         location, URL,           resume
-    report.jobapps.sort=date_sent+
-    # report.jobapps.filter=status:pending
+    report.reduced.description="Job Applications Overview"
+    report.reduced.columns=id,description.truncated,employer,date_sent,response,location,url.indicator,resume,reference_id
+    report.reduced.sort=date_sent+
   # Job Applications Overview
 
   # url report

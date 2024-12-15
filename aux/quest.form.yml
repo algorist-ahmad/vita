@@ -1,19 +1,48 @@
 # vita job posting form v1.0
 
-# read-only, do not touch
-uuid: 
-# without special token lest url will not work
-url: 
-# job posting identifier
-reference: 
+# CORE IDENTIFICATION
 
-job_title: 
-employer: 
-deadline: 
-location: 
+  uuid: #READ-ONLY
+  # Where can I find it exactly?
+  url: 
+  reference: 
+  # Until when do I have to apply before it becomes lost?
+  deadline: 
 
-# 
-application_status: pending
-date_sent: today
+# APPLICATION STATUS
 
-contact: 
+  # How important is this application: trivial, low, normal, high, critical
+  priority: 
+  # When did I apply? (leave empty if not applied yet)
+  date_applied: 
+  # What is the current status? (unapplied, applied, rejected, interviewing, offered)
+  application_status: 
+  # Which resume did I use to apply?
+  resume: 
+
+# POSITION DETAILS
+
+  # What is the position called?
+  title: 
+  # Who is the employer?
+  employer: 
+  # What industry is the employer in?
+  industry: 
+  # Where is the job located?
+  location: 
+  # What is the minimum salary?
+  salary: 
+
+# CONTACT DETAILS
+
+  contact: # Who is the point of contact? (include title as well)
+    name: 
+    email: 
+    phone: 
+
+# ADDITIONAL DETAILS
+
+  # Any additional tags for classification or search?
+  tags: 
+  # Any additional notes about this job or application? Use > for multiline
+  notes: 
