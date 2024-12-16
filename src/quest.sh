@@ -4,6 +4,7 @@ declare -A QUEST_ENV=(
     [default_cmd]='display_full_table'
     [config]="$QUESTRC"
     [data]="$QUESTDATA"
+    [mode]='select' # select, insert, modify, delete, execute
 )
 
 declare -A QUEST_ARG=(
@@ -34,6 +35,7 @@ quest_initialize() {
 
 quest_parse() {
     
+    local mode='select'
     local last_option='filter'
     local option_locked= # latched onto last operation specified, cannot be changed once set
     local ignore= # for special keywords
@@ -41,7 +43,7 @@ quest_parse() {
     # Iterate over arguments using a while loop, what actions can quest do?
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            exe* | --execute | -x)
+            --execute | -x | /)
                 # execute arguments by quest as is
                 QUEST_ARG[execute]=''
                 QUEST_ARG[select]=0

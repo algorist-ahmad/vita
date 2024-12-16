@@ -150,8 +150,8 @@ include dark-256.theme
 
   # Full Table
     report.fulltable.description="All defined UDAs"
-    report.fulltable.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags,description.truncated,urgency,uuid.short
-    report.fulltable.labels=id,url,reference,deadline,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
+    report.fulltable.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied.relative,udastatus,resume,title,employer,industry,location,salary,contact,tags,description.truncated,urgency,uuid.short
+    report.fulltable.labels=id,url,reference,due,pri,date applied,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
     # report.fulltable.sort=
   # Full Table
 
