@@ -1,20 +1,22 @@
 #!/bin/bash
 
 declare -A QUEST_ENV=(
-    [default_cmd]='display_full_table'
+    [default_cmd]='display_default_report'
     [config]="$QUESTRC"
     [data]="$QUESTDATA"
-    [mode]='select' # select, insert, modify, delete, execute
+    [mode]='SELECT' # select, insert, update, delete, execute
 )
 
+# I named this pattern CFOP: command (vita) / filter / operation / parameters
 declare -A QUEST_ARG=(
-    [input]="$@"
-    [select]=1
-    [add]='null'
-    [modify]='null'
-    [delete]='null'
-    [execute]='null'
+    # these will determine the mode of execution
+    [insert]=0
+    [modify]=0
+    [delete]=0
+    [execute]=0
+    # 
     [filter]=''
+    [operands]=''
 )
 
 #########################################################
@@ -29,55 +31,51 @@ quest_main() {
 
 # prepare program for execution
 quest_initialize() {
-    :
+    export TASKRC="${QUEST_ENV[config]}"
+    export TASKDATA="${QUEST_ENV[data]}"
     # TODO: check if QUESTRC and QUESTDATA exits AND are valid
 }
 
 quest_parse() {
     
-    local mode='select'
-    local last_option='filter'
-    local option_locked= # latched onto last operation specified, cannot be changed once set
-    local ignore= # for special keywords
-    
     # Iterate over arguments using a while loop, what actions can quest do?
     while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --execute | -x | /)
-                # execute arguments by quest as is
-                QUEST_ARG[execute]=''
-                QUEST_ARG[select]=0
-                [[ ! $option_locked ]] && option_locked=1 && last_option='execute'
-                ignore=1
-                ;;&
-            add | --insert | --add | -a | -i)
-                QUEST_ARG[add]=''
-                QUEST_ARG[select]=0
-                [[ ! $option_locked ]] && option_locked=1 && last_option='add'
-                ignore=1
-                ;;&
-            mod* | --modify | -u | -m)
-                QUEST_ARG[modify]=''
-                QUEST_ARG[select]=0
-                [[ ! $option_locked ]] && option_locked=1 && last_option='modify'
-                ignore=1
-                ;;&
-            del* | --delete | -d)
-                QUEST_ARG[delete]=''
-                QUEST_ARG[select]=0
-                [[ ! $option_locked ]] && option_locked=1 && last_option='delete'
-                ignore=1
-                ;;&
-            *)
-                # last option specified captures the argument
-                if [[ $ignore -eq 0 ]]; then
-                    QUEST_ARG[$last_option]="${QUEST_ARG[$last_option]} $1" ;
-                else
-                    ignore=0 ;
-                fi
-                ;;
 
-        esac ; shift # discard argument
+        # is argument a special operator?...
+        case "$1" in
+            --select)
+                # This is the default mode
+                ;;
+            --execute | ex | -x | /)
+                QUEST_ENV[mode]='EXECUTE'
+                QUEST_ARG[execute]=1
+                ;;
+            --insert | add | -a | -i)
+                QUEST_ENV[mode]='INSERT'
+                QUEST_ARG[insert]=1
+                ;;
+            --modify | mod | -u | -m)
+                QUEST_ENV[mode]='UPDATE'
+                QUEST_ARG[modify]=1
+                ;;
+            --delete | delete | del | -d | rm)
+                QUEST_ENV[mode]='DELETE'
+                QUEST_ARG[delete]=1
+                ;;
+            *)
+                QUEST_ARG[filter]+=" $1"
+                ;;
+        esac
+
+        # ...if yes, stop further processing, consider remaining args as operands
+        if [[ "${QUEST_ENV[mode]}" != 'SELECT' ]]; then
+            shift                      # discard current argument
+            QUEST_ARG[operands]="$@"   # pass all remaining args to operator
+            break                      # terminate loop
+        else
+            shift
+        fi
+
     done
 }
 
@@ -86,29 +84,22 @@ quest_validate() {
 }
 
 quest_dispatch() {
-
-    TASKRC="${QUEST_ENV[config]}"
-    TASKDATA="${QUEST_ENV[data]}"
-    
-    run_default_command="${QUEST_ENV[default_cmd]}"
-    select="${QUEST_ARG[select]}"
-    add_args="${QUEST_ARG[add]}"
-    mod_args="${QUEST_ARG[modify]}"
-    del_args="${QUEST_ARG[delete]}"
-    exe_args="${QUEST_ARG[execute]}"
+    mode="${QUEST_ENV[mode]}"
     filter="${QUEST_ARG[filter]}"
+    operands="${QUEST_ARG[operands]}"
+    run_default_command="${QUEST_ENV[default_cmd]}"
     
     # report errors if any
     report_error
 
     # execute action based on input
-    if no_arg; then $run_default_command; return; fi
-    is_true $select && quest_select "$filter"
-    ! is_null "$add_args" && quest_insert "$add_args"
-    ! is_null "$mod_args" && quest_modify "$filter" "$mod_args"
-    ! is_null "$del_args" && quest_delete "$filter" "$del_args"
-    ! is_null "$exe_args" && quest_execute "$exe_args"
-
+    case "$mode" in
+        EXECUTE) do_execute $operands ;;
+        SELECT) do_select $filter ;;
+        INSERT) do_insert $operands ;;
+        UPDATE) do_update "$filter" "$operands" ;;
+        DELETE) do_delete "$filter" "$operands" ;;
+    esac
 }
 
 quest_execute() {
@@ -126,28 +117,28 @@ quest_terminate() {
     return $error_number
 }
 
-display_full_table() {
+display_default_report() {
     task
 }
 
-quest_select() {
-    echo "quest select"
+do_select() {
+    echo "selecting $@"
 }
 
-quest_insert(){
-    echo "quest insert"
+do_insert(){
+    echo "inserting $@"
 }
 
-quest_modify() {
-    echo "quest modify"
+do_update() {
+    echo "updating $1 WITH $2"
 }
 
-quest_delete() {
-    echo "quest delete"
+do_delete() {
+    echo "deleting $1 BTW $2"
 }
 
-quest_execute() {
-    echo "bypassing wrapper"
+do_execute() {
+    task $@
 }
 
 # helpers
