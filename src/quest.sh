@@ -44,13 +44,14 @@ quest_parse() {
         # is argument a special operator?...
         case "$1" in
             --select)
-                # This is the default mode
+                # This is the default mode, but maybe it could help by preventing arguments to
+                # be interpretted as special keywords?
                 ;;
             --execute | ex | -x | /)
                 QUEST_ENV[mode]='EXECUTE'
                 QUEST_ARG[execute]=1
                 ;;
-            --insert | add | -a | -i)
+            --insert | new | add | -a | -i)
                 QUEST_ENV[mode]='INSERT'
                 QUEST_ARG[insert]=1
                 ;;
@@ -121,20 +122,51 @@ display_default_report() {
     task
 }
 
+# grep_column() { # $1=column $2=search term $3=optional_report
+    # just use the uda.has: syntax
+    # ids=$(task "$3" export | jq -r ".[] | select(.\"$1\" != null) | \"\(.id) \(.\"$1\")\"" | grep -F "$2" | awk '{print $1}')
+    # task $ids
+# }
+
 do_select() {
-    echo "selecting $@"
+    task $@
 }
 
 do_insert(){
-    echo "inserting $@"
+    if [[ -z "$@" ]]; then
+        launch_empty_form
+    else
+        shift ; task add "$@"
+    fi
+    return $?
+}
+
+launch_empty_form() {
+    task add ':'
+    last_insert_id=$(task export last_insert | jq '.[].id')
+    task edit $last_insert_id
 }
 
 do_update() {
-    echo "updating $1 WITH $2"
+    if [[ -z "$1$2" ]]; then
+        echo "Modify which?"
+    elif [[ -z "$2" ]]; then
+        task $1 edit
+    elif [[ -z "$1" ]]; then
+        task $2 edit
+    else
+        task $1 mod $2
+    fi
+    return $?
 }
 
 do_delete() {
-    echo "deleting $1 BTW $2"
+    if [[ -z "$1$2" ]]; then
+        echo "Delete which?"
+    else
+        task $1 delete $2
+    fi
+    return $?
 }
 
 do_execute() {

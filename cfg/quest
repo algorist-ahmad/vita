@@ -8,10 +8,11 @@ include dark-256.theme
 # GENERAL SETTINGS *******************************************************************************
 
   editor=$EDITOR
-  verbose=affected,blank,context,edit,footnote,label,new-id,news,project,special,sync,override,recur
+  verbose=affected,blank,context,footnote,label,new-id,news,project,special,sync,override,recur
   print.empty.columns=yes
   default.command=full
   exit.on.missing.db=yes
+  search.case.sensitive=0
 
 # TABLE: JOB APPLICATIONS COLUMNS DEFINITION *****************************************************
 
@@ -42,7 +43,7 @@ include dark-256.theme
   # url **************************************
     uda.url.label=URL
     uda.url.type=string
-    uda.url.indicator=***
+    uda.url.indicator=...
     color.uda.url=color249
   # url **************************************
 
@@ -150,7 +151,7 @@ include dark-256.theme
 
   # Full Table
     report.full.description="All defined UDAs"
-    report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags,description.truncated,urgency,uuid.short
+    report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags.count,description.truncated,urgency,uuid.short
     report.full.labels=id,url,reference,due,pri,date applied,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
     # report.fulltable.sort=
   # Full Table
