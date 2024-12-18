@@ -10,7 +10,6 @@ include dark-256.theme
   editor=$EDITOR
   verbose=affected,blank,context,footnote,label,new-id,news,project,special,sync,override,recur
   print.empty.columns=yes
-  default.command=full
   exit.on.missing.db=yes
   search.case.sensitive=0
 
@@ -140,6 +139,9 @@ include dark-256.theme
 # REPORTS *****************************************
 
   # Do $ task columns for details
+
+  # default report
+  default.command=partial
 
   # SPECIFY:
     # 1. description
