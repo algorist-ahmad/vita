@@ -150,21 +150,21 @@ include dark-256.theme
     # 6. grouping*
 
   # Full Table
-    report.full.description="All defined UDAs"
+    report.full.description="Full report containing all UDAs"
     report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags.count,description.truncated,urgency,uuid.short
-    report.full.labels=id,url,reference,due,pri,date applied,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
+    report.full.labels=id,url,ref,due,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
     # report.fulltable.sort=
   # Full Table
 
   # Job Applications Overview
-    report.short.description="Job Applications Overview"
-    report.short.columns=id,description.truncated,employer,date_sent,response,location,url.indicator,resume,reference_id
-    report.short.sort=date_sent+
+    report.partial.description="Partial report of job applications"
+    report.partial.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,title,employer,location,salary,description.truncated
+    report.partial.labels=id,ref,due,sent,status,resume,title,employer,location,salary,notes
   # Job Applications Overview
 
   # url report
     report.url.description='show url'
-    report.url.columns=id,uuid.short,job_title,description.truncated,url
+    report.url.columns=id,uuid.short,url
   # url report
 
   # UUID REPORT
