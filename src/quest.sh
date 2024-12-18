@@ -4,7 +4,7 @@ declare -A QUEST_ENV=(
     [default_cmd]='display_default_report'
     [config]="$QUESTRC"
     [data]="$QUESTDATA"
-    [mode]='SELECT' # select, insert, update, delete, execute
+    [mode]='SELECT' # SELECT, INSERT, UPDATE, DELETE, EXECUTE
 )
 
 # I named this pattern CFOP: command (vita) / filter / operation / parameters
