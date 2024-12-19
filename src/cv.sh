@@ -1,101 +1,84 @@
 #!/bin/bash
 
+declare -A CV_ENV=(
+    [default_cmd]='display_default_report'
+    [config]="$CVRC"
+    [data]="$CVDIR"
+    [mode]='NORMAL' # NORMAL, SELECT, RENDER, INSERT
+)
+
 declare -A CV_ARG=(
     [list]=0
-    [add]='null'
-    [del]='null'
-    [show]='null'
-    [edit]='null'
-    [clone]='null'
-    [query]='null'
-    [render]='null'       # <resume-uuid> [--template <template-label>] [--output <file-path>]
-    [link]='null'         # <job-id> <resume-uuid>
-    [unknown]='null'      # unknown args
+    [render]=0
+    [insert]=0
+    [operands]=
 )
 
 cv_main() {
     cv_initialize
     cv_parse "$@"
-    cv_validate 
     cv_dispatch
     cv_terminate
 }
 
 cv_initialize() {
-    [[ -z "${ARG[cv]}" ]] && CV_ARG[list]=1
+    # [[ -z "${ARG[cv]}" ]] && CV_ARG[list]=1
+    export TASKRC="${CV_ENV[config]}"
+    export TASKDATA="${CV_ENV[data]}"
 }
 
 cv_parse() {
 
-    local last_option='unknown' # lastop
+    operator_set=
     
     # Iterate over arguments using a while loop
     while [[ $# -gt 0 ]]; do
         case "$1" in
-
             list | -l)
-                CV_ARG[list]=1 ;
-                last_option='list' ;
-                ;;
-            add | -a)
-                CV_ARG[add]='' ;
-                last_option='add' ;
-                ;;
-            del | rm)
-                CV_ARG[del]='' ;
-                last_option='del' ;
-                ;;
-            edit | mod | -e)
-                CV_ARG[edit]='' ;
-                last_option='edit' ;
-                ;;
-            clone | duplicate | -c)
-                CV_ARG[clone]='' ;
-                last_option='clone' ;
-                ;;
-            show | -s)
-                CV_ARG[show]='' ;
-                last_option='show' ;
-                ;;
-            query | get | -q)
-                CV_ARG[query]='' ;
-                last_option='query' ;
+                CV_ARG[list]=1
+                CV_ENV[mode]='SELECT'
+                operator_set=yes
                 ;;
             render | to-pdf | convert | -r)
-                CV_ARG[render]='' ;
-                last_option='render' ;
+                CV_ARG[render]=1
+                CV_ENV[mode]='RENDER'
+                operator_set=yes
                 ;;
-            link)
-                CV_ARG[link]='' ;
-                last_option='link' ;
-                ;;
-            null)
-                ENV[message]+='null has special meaning, rejected\n' ;
-                ;;
-            --)
-                last_option='unknown' ; # resets last option, why tho idk
+            insert | create | add | new)
+                CV_ARG[insert]=1
+                CV_ENV[mode]='INSERT'
+                operator_set=yes
                 ;;
             *)
-                # if last option is unknown clear ARG[unknown] (remove the special string which identifies it as null)
-                [[ "$last_option" == 'unknown' ]] && is_null "${CV_ARG[unknown]}" && CV_ARG[unknown]=''
-                # last option specified captures the argument
-                CV_ARG[$last_option]="${CV_ARG[$last_option]} $1" ;
+                CV_ARG[operands]+=" $1"
                 ;;
+        esac
 
-        esac ; shift # discard argument
+        # ...if yes, stop further processing, consider remaining args as operands
+        if [[ -n "$operator_set" ]]; then
+            shift                      # discard current argument
+            CV_ARG[operands]+="$@"     # pass all remaining args to operator
+            break                      # terminate loop
+        else
+            shift
+        fi
+
     done
 }
 
-cv_validate() {
-    :
-}
-
 cv_dispatch() {
+    mode="${CV_ENV[mode]}"
     list=${CV_ARG[list]}
-    render_id=${CV_ARG[render]}
+    render=${CV_ARG[render]}
+    insert=${CV_ARG[insert]}
+    param="${CV_ARG[operands]}"
 
     is_true $list && list_resumes
-    ! is_null "$render_id" && render_resume $render_id
+    is_true $render && render_resume $param
+    is_true $insert && insert_resume $param
+    if [[ "$mode" == 'NORMAL' ]]; then
+        task $param
+    fi
 }
 
 cv_terminate() {
@@ -118,6 +101,16 @@ join_arrays() {
 list_resumes() {
     cd "${ENV[data]}"
     tree cv -L 1
+}
+
+insert_resume() {
+    if [[ -z "$@" ]]; then
+        task add '.'
+        last_insert_id=$(task export last_insert | jq '.[].id')
+        task edit $last_insert_id
+    else
+        task add $@
+    fi
 }
 
 # renders a .tex file
