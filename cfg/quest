@@ -43,13 +43,13 @@ include dark-256.theme
     uda.url.label=URL
     uda.url.type=string
     uda.url.indicator=...
-    color.uda.url=color249
+    # color.uda.url=color249
   # url **************************************
 
   # job reference id ********************************
     uda.reference_id.label=reference
     uda.reference_id.type=string
-    color.uda.reference_id=color242
+    # color.uda.reference_id=color242
   # reference  ********************************************
 
   # deadline (built-in)
@@ -71,7 +71,7 @@ include dark-256.theme
     uda.date_applied.label=date applied
     uda.date_applied.type=date
     urgency.uda.date_applied.coefficient=1.0
-    color.uda.date_applied=color252
+    # color.uda.date_applied=color252
   # application date sent  ********************************
 
   # col 5: status  **********************************************
@@ -80,54 +80,54 @@ include dark-256.theme
     uda.udastatus.values=unapplied,applied,pending,interviewing,offered,rejected
     uda.udastatus.default=unapplied
     urgency.uda.udastatus.coefficient=2.0
-    color.uda.udastatus=color251
+    color.uda.udastatus.unapplied=color9
   # col 5: status  **********************************************
 
   # resume **************************************
     uda.resume.label=resume id
     uda.resume.type=string
     urgency.uda.resume.coefficient=1.0
-    color.uda.resume=color250
+    # color.uda.resume=color250
   # resume **************************************
 
   # col 3: title  **********************************************
     uda.title.label=job title
     uda.title.type=string
-    color.uda.title=color254
+    # color.uda.title=color254
   # col 3: title  **********************************************
 
   # col 4: employer  **********************************************
     uda.employer.label=employer
     uda.employer.type=string
     urgency.uda.employer.coefficient=1.0
-    color.uda.employer=color254
+    # color.uda.employer=color254
   # col 4: employer  **********************************************
 
   # industry ******************************************
     uda.industry.label=industry
     uda.industry.type=string
-    color.uda.industry=color245
+    # color.uda.industry=color245
   # industry ****************************************
 
   # location ****************************************
     uda.location.label=location
     uda.location.type=string
     urgency.uda.location.coefficient=1.0
-    color.uda.location=color245
+    # color.uda.location=color245
   # location ****************************************
 
   # salary ******************************************
     uda.salary.label=salary
     uda.salary.type=numeric
     urgency.uda.salary.coefficient=1.0
-    color.uda.salary=color244
+    # color.uda.salary=color244
   # salary ****************************************** 
 
   # col 6: contact  **********************************************
     uda.contact.label=contact
     uda.contact.type=string # yaml
     urgency.uda.contact.coefficient=1.0
-    color.uda.contact=color251
+    # color.uda.contact=color251
   # col 6: contact  **********************************************
 
   # tags (built-in)
@@ -154,14 +154,14 @@ include dark-256.theme
   # Full Table
     report.full.description="Full report containing all UDAs"
     report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags.count,description.truncated,urgency,uuid.short
-    report.full.labels=id,url,ref,due,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
+    report.full.labels=id,url,reference,due,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
     # report.fulltable.sort=
   # Full Table
 
   # Job Applications Overview
     report.partial.description="Partial report of job applications"
     report.partial.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,title,employer,location,salary,description.truncated
-    report.partial.labels=id,ref,due,sent,status,resume,title,employer,location,salary,notes
+    report.partial.labels=id,reference,due,sent,status,resume,title,employer,location,salary,notes
   # Job Applications Overview
 
   # url report

@@ -142,7 +142,7 @@ do_insert(){
 }
 
 launch_empty_form() {
-    task add ':'
+    task add '-'
     last_insert_id=$(task export last_insert | jq '.[].id')
     task edit $last_insert_id
 }
