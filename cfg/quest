@@ -12,6 +12,11 @@ include dark-256.theme
   print.empty.columns=yes
   exit.on.missing.db=yes
   search.case.sensitive=0
+  # color.status.
+
+# COLOR SETTINGS
+
+  color.active=
 
 # TABLE: JOB APPLICATIONS COLUMNS DEFINITION *****************************************************
 
@@ -81,6 +86,7 @@ include dark-256.theme
     uda.udastatus.default=unapplied
     urgency.uda.udastatus.coefficient=2.0
     color.uda.udastatus.unapplied=color9
+    color.uda.udastatus.rejected=gray6
   # col 5: status  **********************************************
 
   # resume **************************************
