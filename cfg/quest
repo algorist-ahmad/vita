@@ -9,6 +9,8 @@ include dark-256.theme
 
   editor=$EDITOR
   verbose=affected,blank,context,footnote,label,new-id,news,project,special,sync,override,recur
+  rule.precedence.color=uda,deleted,completed,active,keyword.,tag.,project.,overdue,scheduled,due.today,due,blocked,blocking,recurring,tagged
+  
   print.empty.columns=yes
   exit.on.missing.db=yes
   search.case.sensitive=0
@@ -66,9 +68,9 @@ include dark-256.theme
     urgency.uda.priority.L.coefficient=1.8   # LOW
     urgency.uda.priority.T.coefficient=-0.5  # TRIVIAL
     color.uda.priority.C=color255 on color9
-    color.uda.priority.H=color250
-    color.uda.priority.M=color245
-    color.uda.priority.L=color242
+    color.uda.priority.H=
+    color.uda.priority.M=
+    color.uda.priority.L=
     color.uda.priority.T=color240
   # priority *****************************************
 
@@ -96,9 +98,9 @@ include dark-256.theme
     # color.uda.resume=color250
   # resume **************************************
 
-  # col 3: title  **********************************************
-    uda.title.label=job title
-    uda.title.type=string
+  # col 3: title (DEPRECATED)  **********************************************
+    # uda.title.label=job title
+    # uda.title.type=string
     # color.uda.title=color254
   # col 3: title  **********************************************
 
@@ -159,15 +161,23 @@ include dark-256.theme
 
   # Full Table
     report.full.description="Full report containing all UDAs"
-    report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,title,employer,industry,location,salary,contact,tags.count,description.truncated,urgency,uuid.short
-    report.full.labels=id,url,reference,due,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,notes,urg,uuid
+    report.full.columns=id,url.indicator,reference_id,due.countdown,priority,date_applied,udastatus,resume,description.truncated,employer,industry,location,salary,contact,tags.count,urgency,uuid.short
+    report.full.labels=id,url,reference,due,pri,date,status,resume,title,employer,industry,location,salary,contact,tags,urg,uuid
     # report.fulltable.sort=
   # Full Table
 
   # Job Applications Overview
     report.partial.description="Partial report of job applications"
-    report.partial.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,title,employer,location,salary,description.truncated
-    report.partial.labels=id,reference,due,sent,status,resume,title,employer,location,salary,notes
+    report.partial.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,description.truncated,employer,location,salary
+    report.partial.labels=id,reference,due,sent,status,resume,title,employer,location,salary
+    report.partial.sort=entry
+  # Job Applications Overview
+
+  # Job Applications Overview
+      report.due.description="Sorted by deadline"
+      report.due.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,description.truncated,employer,location,salary
+      report.due.labels=id,reference,due,sent,status,resume,title,employer,location,salary
+      report.due.sort=due
   # Job Applications Overview
 
   # url report

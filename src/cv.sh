@@ -157,15 +157,23 @@ render_resume() {
 
 view_resume() {
     dir="${ENV[data]}/cv"
-    for uuid in $@; do
+    for id in $@; do
+        uuid=$(get_uuid $id)
         file="$dir/$uuid/cv.pdf"
-        if [[ ! -f "$file" ]]; then
+        if [[ -z "$uuid" ]]; then
+            echo "No UUID found for cv #$id"
+        elif [[ ! -f "$file" ]]; then
             echo "$file does not exist!"
         else
             xdg-open "$file" &
         fi
         
     done
+}
+
+get_uuid() {
+    long_uuid=$(task _get $id.uuid)
+    echo ${long_uuid:0:8}
 }
 
 cv_main "$@"
