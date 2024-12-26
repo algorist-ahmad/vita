@@ -4,13 +4,14 @@ declare -A CV_ENV=(
     [default_cmd]='display_default_report'
     [config]="$CVRC"
     [data]="$CVDIR"
-    [mode]='NORMAL' # NORMAL, SELECT, RENDER, INSERT
+    [mode]='NORMAL' # NORMAL, SELECT, RENDER, INSERT, VIEW
 )
 
 declare -A CV_ARG=(
     [list]=0
     [render]=0
     [insert]=0
+    [view]=0
     [operands]=
 )
 
@@ -44,6 +45,11 @@ cv_parse() {
                 CV_ENV[mode]='RENDER'
                 operator_set=yes
                 ;;
+            view | open | -v)
+                CV_ARG[view]=1
+                CV_ENV[mode]='VIEW'
+                operator_set=yes
+                ;;
             insert | create | add | new)
                 CV_ARG[insert]=1
                 CV_ENV[mode]='INSERT'
@@ -57,7 +63,7 @@ cv_parse() {
         # ...if yes, stop further processing, consider remaining args as operands
         if [[ -n "$operator_set" ]]; then
             shift                      # discard current argument
-            CV_ARG[operands]+="$@"     # pass all remaining args to operator
+            CV_ARG[operands]+=" $@"    # pass all remaining args to operator
             break                      # terminate loop
         else
             shift
@@ -71,11 +77,13 @@ cv_dispatch() {
     list=${CV_ARG[list]}
     render=${CV_ARG[render]}
     insert=${CV_ARG[insert]}
+    view=${CV_ARG[view]}
     param="${CV_ARG[operands]}"
 
     is_true $list && list_resumes
     is_true $render && render_resume $param
     is_true $insert && insert_resume $param
+    is_true $view && view_resume $param
     if [[ "$mode" == 'NORMAL' ]]; then
         task $param
     fi
@@ -145,6 +153,19 @@ render_resume() {
 
     echo -e "PDF ready at $rendered_file"
     xdg-open "$rendered_file" 2>/dev/null
+}
+
+view_resume() {
+    dir="${ENV[data]}/cv"
+    for uuid in $@; do
+        file="$dir/$uuid/cv.pdf"
+        if [[ ! -f "$file" ]]; then
+            echo "$file does not exist!"
+        else
+            xdg-open "$file" &
+        fi
+        
+    done
 }
 
 cv_main "$@"
