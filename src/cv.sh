@@ -4,7 +4,7 @@ declare -A CV_ENV=(
     [default_cmd]='display_default_report'
     [config]="$CVRC"
     [data]="$CVDIR"
-    [mode]='NORMAL' # NORMAL, SELECT, RENDER, INSERT, VIEW
+    [mode]='NORMAL' # NORMAL, SELECT, RENDER, INSERT, VIEW, QUERY
 )
 
 declare -A CV_ARG=(
@@ -12,6 +12,7 @@ declare -A CV_ARG=(
     [render]=0
     [insert]=0
     [view]=0
+    [path]=0
     [operands]=
 )
 
@@ -32,7 +33,7 @@ cv_parse() {
 
     operator_set=
     
-    # Iterate over arguments using a while loop
+    # Iterate over arguments using a while loop, if operator set then...
     while [[ $# -gt 0 ]]; do
         case "$1" in
             list | -l)
@@ -55,12 +56,17 @@ cv_parse() {
                 CV_ENV[mode]='INSERT'
                 operator_set=yes
                 ;;
+            --get-path | path | -p)
+                CV_ARG[path]=1
+                CV_ENV[mode]='QUERY'
+                operator_set=yes
+                ;;
             *)
                 CV_ARG[operands]+=" $1"
                 ;;
         esac
 
-        # ...if yes, stop further processing, consider remaining args as operands
+        # ...if operator set then stop further processing, consider remaining args as operands
         if [[ -n "$operator_set" ]]; then
             shift                      # discard current argument
             CV_ARG[operands]+=" $@"    # pass all remaining args to operator
@@ -78,12 +84,14 @@ cv_dispatch() {
     render=${CV_ARG[render]}
     insert=${CV_ARG[insert]}
     view=${CV_ARG[view]}
+    get_path=${CV_ARG[path]}
     param="${CV_ARG[operands]}"
 
-    is_true $list && list_resumes
-    is_true $render && render_resume $param
-    is_true $insert && insert_resume $param
-    is_true $view && view_resume $param
+    is_true $list     && list_resumes
+    is_true $render   && render_resume $param
+    is_true $insert   && insert_resume $param
+    is_true $view     && view_resume $param
+    is_true $get_path && get_path $param
     if [[ "$mode" == 'NORMAL' ]]; then
         task $param
     fi
@@ -166,6 +174,22 @@ view_resume() {
             echo "$file does not exist!"
         else
             xdg-open "$file" &
+        fi
+    done
+}
+
+# gets the path to the pdf file represented by the uuid or the id of the cv
+get_path() {
+    dir="${ENV[data]}/cv"
+    for id in $@; do
+        uuid=$(get_uuid $id)
+        file="$dir/$uuid/cv.pdf"
+        if [[ -z "$uuid" ]]; then
+            echo "No UUID found for cv #$id"
+        elif [[ ! -f "$file" ]]; then
+            echo "$file does not exist!"
+        else
+            echo "$file"
         fi
     done
 }
