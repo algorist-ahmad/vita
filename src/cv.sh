@@ -167,7 +167,6 @@ view_resume() {
         else
             xdg-open "$file" &
         fi
-        
     done
 }
 
