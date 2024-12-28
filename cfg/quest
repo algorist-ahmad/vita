@@ -166,19 +166,26 @@ include dark-256.theme
     # report.fulltable.sort=
   # Full Table
 
-  # Job Applications Overview
+  # Partial report
     report.partial.description="Partial report of job applications"
     report.partial.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,description.truncated,employer,location,salary
     report.partial.labels=id,reference,due,sent,status,resume,title,employer,location,salary
     report.partial.sort=entry
-  # Job Applications Overview
+  # Partial Report
 
-  # Job Applications Overview
-      report.due.description="Sorted by deadline"
-      report.due.columns=id,reference_id,due.countdown,date_applied,udastatus,resume,description.truncated,employer,location,salary
-      report.due.labels=id,reference,due,sent,status,resume,title,employer,location,salary
-      report.due.sort=due
-  # Job Applications Overview
+  # Minimal Report
+      report.minimal.description="Minimal report for small windows"
+      report.minimal.columns=id,reference_id,udastatus,description.truncated,employer
+      report.minimal.labels=id,ref,status,title,employer
+      report.minimal.sort=entry-
+  # Minimal Report
+
+  # Sort by deadline (accidently overwritten)
+        report.due.description="Minimal report for small windows"
+        report.due.columns=id,reference_id,udastatus,description.truncated,employer
+        report.due.labels=id,ref,status,title,employer
+        report.due.sort=entry-
+  # Sort by deadline
 
   # url report
     report.url.description='show url'
