@@ -84,7 +84,7 @@ include dark-256.theme
   # col 5: status  **********************************************
     uda.udastatus.label=status
     uda.udastatus.type=string
-    uda.udastatus.values=unapplied,applied,pending,interviewing,offered,rejected
+    uda.udastatus.values=unapplied,applied,pending,interviewing,offered,rejected,hired
     uda.udastatus.default=unapplied
     urgency.uda.udastatus.coefficient=2.0
     color.uda.udastatus.unapplied=color9
